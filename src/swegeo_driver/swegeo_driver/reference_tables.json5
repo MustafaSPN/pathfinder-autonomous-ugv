@@ -1,0 +1,631 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "notes": "Lookup tables extracted from UG017 manual for status/mask references.",
+    "updated": "2025-02-14"
+  },
+  "table_4_1_solution_status": {
+    "title": "Table 4-1 Solution Status",
+    "columns": ["value", "ascii", "description"],
+    "rows": [
+      { "value": "0", "ascii": "SOL_COMPUTED", "description": "Solution computed" },
+      { "value": "1", "ascii": "INSUFFICIENT_OBS", "description": "Insufficient observations" },
+      { "value": "2", "ascii": "NO_CONVERGENCE", "description": "No convergence" },
+      { "value": "3", "ascii": "SINGULARITY", "description": "Singularity at parameters matrix" },
+      { "value": "4", "ascii": "COV_TRACE", "description": "Covariance trace exceeds maximum (trace > 1000 m)" },
+      { "value": "5", "ascii": "TEST_DIST", "description": "Test distance exceeded (maximum of 3 rejections if distance > 10 km)" },
+      { "value": "6", "ascii": "COLD_START", "description": "Not yet converged from cold start" },
+      { "value": "7", "ascii": "V_H_LIMIT", "description": "Height or velocity limits exceeded" },
+      { "value": "8", "ascii": "VARIANCE", "description": "Variance exceeds limits" },
+      { "value": "9", "ascii": "RESIDUALS", "description": "Residuals are too large" },
+      { "value": "10-12", "ascii": "Reserved", "description": "Reserved" },
+      { "value": "13", "ascii": "INTEGRITY_WARNING", "description": "Large residuals make position unreliable" },
+      { "value": "14-17", "ascii": "Reserved", "description": "Reserved" },
+      {
+        "value": "18",
+        "ascii": "PENDING",
+        "description": "Receiver is verifying the FIX position input; appears when not enough satellites are currently tracked."
+      },
+      {
+        "value": "19",
+        "ascii": "INVALID_FIX",
+        "description": "The fixed position entered using the FIX position command is not valid."
+      },
+      { "value": "20", "ascii": "UNAUTHORIZED", "description": "Position type is unauthorized." },
+      { "value": "21", "ascii": "Reserved", "description": "Reserved" },
+      { "value": "22", "ascii": "INVALID_RATE", "description": "The selected logging rate is not supported by this solution type." }
+    ]
+  },
+  "table_4_2_position_status": {
+    "title": "Table 4-2 Position Status",
+    "columns": ["value", "ascii", "description"],
+    "rows": [
+      { "value": "0", "ascii": "NONE", "description": "No solution" },
+      { "value": "1", "ascii": "FIXEDPOS", "description": "Position has been fixed by the FIX position command." },
+      { "value": "2", "ascii": "FIXEDHEIGHT", "description": "Position has been fixed by the FIX height or FIX auto command." },
+      { "value": "3", "ascii": "Reserved", "description": "Reserved" },
+      { "value": "4", "ascii": "FLOATCONV", "description": "Floating carrier phase ambiguity solution" },
+      { "value": "5", "ascii": "WIDELANE", "description": "Wide lane ambiguity solution" },
+      { "value": "6", "ascii": "NARROWLANE", "description": "Narrow lane ambiguity solution" },
+      { "value": "7", "ascii": "Reserved", "description": "Reserved" },
+      { "value": "8", "ascii": "DOPPLER_VELOCITY", "description": "Velocity computed using instantaneous Doppler" },
+      { "value": "9-15", "ascii": "Reserved", "description": "Reserved" },
+      { "value": "16", "ascii": "SINGLE", "description": "Single point solution" },
+      { "value": "17", "ascii": "PSRDIFF", "description": "Pseudorange Differential" },
+      { "value": "18", "ascii": "WAAS", "description": "SBAS solution" },
+      { "value": "19", "ascii": "PROPAGATED", "description": "Propagated by a Kalman filter without new observations" },
+      { "value": "20-31", "ascii": "Reserved", "description": "Reserved" },
+      { "value": "32", "ascii": "L1_FLOAT", "description": "L1 float solution" },
+      { "value": "33", "ascii": "IONOFREE_FLOAT", "description": "Ionosphere-free floating point solution" },
+      { "value": "34", "ascii": "NARROW_FLOAT", "description": "RTK float solution with unresolved carrier phase ambiguities" },
+      { "value": "35-47", "ascii": "Reserved", "description": "Reserved" },
+      { "value": "48", "ascii": "L1_INT", "description": "L1 fixed integer ambiguity solution" },
+      {
+        "value": "49",
+        "ascii": "WIDE_INT",
+        "description": "RTK fixed solution with carrier phase ambiguities resolved to wide-lane integers"
+      },
+      {
+        "value": "50",
+        "ascii": "NARROW_INT",
+        "description": "RTK fixed solution with carrier phase ambiguities resolved to narrow-lane integers"
+      },
+      {
+        "value": "51",
+        "ascii": "RTK_DIRECT_INS",
+        "description": "RTK status where RTK is initialized directly through INS"
+      },
+      { "value": "52", "ascii": "INS_SBAS", "description": "INS position after antenna calibration" },
+      { "value": "53", "ascii": "INS_PSRSP", "description": "INS Pseudorange single point (no DGPS)" },
+      { "value": "54", "ascii": "INS_PSRDIFF", "description": "INS Pseudorange differential" },
+      { "value": "55", "ascii": "INS_RTKFLOAT", "description": "INS RTK Float" },
+      { "value": "56", "ascii": "INS_RTKFIXED", "description": "INS RTK Fixed" },
+      { "value": "57-67", "ascii": "Reserved", "description": "Reserved" },
+      { "value": "68", "ascii": "PPP_CONVERGING", "description": "Converging PPP solution (TerraStar-C)" },
+      { "value": "69", "ascii": "PPP", "description": "Converged PPP solution (TerraStar-C)" },
+      { "value": "70", "ascii": "OPERATIONAL", "description": "Solution accuracy is within UAL operational limit" },
+      {
+        "value": "71",
+        "ascii": "WARNING",
+        "description": "Solution accuracy is outside UAL operational limit but within warning limit"
+      },
+      { "value": "72", "ascii": "OUT_OF_BOUNDS", "description": "Solution accuracy is outside UAL limits" },
+      { "value": "73", "ascii": "INS_PPP_CONVERGING", "description": "Converging INS PPP solution (TerraStar-C)" },
+      { "value": "74", "ascii": "INS_PPP", "description": "Converged INS PPP solution (TerraStar-C)" },
+      { "value": "77", "ascii": "PPP_BASIC_CONVERGING", "description": "Converging PPP solution (TerraStar-L)" },
+      { "value": "78", "ascii": "PPP_BASIC", "description": "Converged PPP solution (TerraStar-L)" },
+      { "value": "79", "ascii": "INS_PPPP_BASIC_CONVERGING", "description": "Converging INS PPP solution (TerraStar-L)" },
+      { "value": "80", "ascii": "INS_PPPP_BASIC", "description": "Converged INS PPP solution (TerraStar-L)" }
+    ]
+  },
+  "table_4_3_extended_solution_status": {
+    "title": "Table 4-3 Extended Solution Status",
+    "columns": ["bit", "mask", "description"],
+    "rows": [
+      {
+        "bit": "0",
+        "mask": "0x01",
+        "description": "RTK solution: an RTK solution has been verified; PDP solution: solution is GLIDE; otherwise reserved."
+      },
+      {
+        "bit": "1-3",
+        "mask": "0x0E",
+        "description": "Pseudorange ionospheric correction: 0=Unknown/default, 1=Klobuchar Broadcast, 2=SBAS Broadcast, 3=Multi-frequency Computed, 4=PSRDiff Correction, 5=Blended Iono Value."
+      },
+      { "bit": "4", "mask": "0x10", "description": "RTK ASSIST active (1=active)." },
+      { "bit": "5", "mask": "0x20", "description": "0 = No antenna warning, 1 = Antenna information is missing." },
+      { "bit": "6-7", "mask": "0xC0", "description": "Reserved" }
+    ]
+  },
+  "table_4_4_gps_glo_signal_mask": {
+    "title": "Table 4-4 GPS and GLONASS Signal Used Mask",
+    "columns": ["bit", "mask", "description"],
+    "rows": [
+      { "bit": "0", "mask": "0x01", "description": "GPS L1 used in solution" },
+      { "bit": "1", "mask": "0x02", "description": "GPS L2 used in solution" },
+      { "bit": "2", "mask": "0x04", "description": "GPS L5 used in solution" },
+      { "bit": "3", "mask": "0x08", "description": "Reserved" },
+      { "bit": "4", "mask": "0x10", "description": "GLONASS L1 used in solution" },
+      { "bit": "5", "mask": "0x20", "description": "GLONASS L2 used in solution" },
+      { "bit": "6", "mask": "0x40", "description": "GLONASS L3 used in solution" },
+      { "bit": "7", "mask": "0x80", "description": "Reserved" }
+    ]
+  },
+  "table_4_5_galileo_bds_signal_mask": {
+    "title": "Table 4-5 Galileo and BDS Signal Used Mask",
+    "columns": ["bit", "mask", "description"],
+    "rows": [
+      { "bit": "0", "mask": "0x01", "description": "Galileo E1 used in solution" },
+      { "bit": "1", "mask": "0x02", "description": "Galileo E5A used in solution" },
+      { "bit": "2", "mask": "0x04", "description": "Galileo E5B used in solution" },
+      { "bit": "3", "mask": "0x08", "description": "Galileo ALTBOC used in solution" },
+      { "bit": "4", "mask": "0x10", "description": "BeiDou B1 used in solution" },
+      { "bit": "5", "mask": "0x20", "description": "BeiDou B2 used in solution" },
+      { "bit": "6", "mask": "0x40", "description": "BeiDou B3 used in solution" },
+      { "bit": "7", "mask": "0x80", "description": "Reserved" }
+    ]
+  },
+  "table_4_7_solution_source": {
+    "title": "Table 4-7 Solution Source",
+    "columns": ["bit", "mask", "description"],
+    "rows": [
+      { "bit": "0-1", "mask": "0x03", "description": "Reserved" },
+      { "bit": "2-3", "mask": "0x0C", "description": "Solution source: 0=primary antenna, 1=secondary antenna." },
+      { "bit": "4-7", "mask": "0xF0", "description": "Reserved" }
+    ]
+  },
+  "table_4_8_ins_status": {
+    "title": "Table 4-8 INS Status",
+    "columns": ["value", "ascii", "description"],
+    "rows": [
+      { "value": "0", "ascii": "INS_INACTIVE", "description": "Alignment not activated" },
+      { "value": "1", "ascii": "INS_ALIGNING", "description": "In coarse alignment" },
+      {
+        "value": "2",
+        "ascii": "INS_HIGH_VARIANCE",
+        "description": "High covariance; attitude estimation not converged"
+      },
+      { "value": "3", "ascii": "INS_SOLUTION_GOOD", "description": "Alignment completed with good results" },
+      { "value": "6", "ascii": "INS_SOLUTION_FREE", "description": "Poor satellite signals; results not available" },
+      { "value": "7", "ascii": "INS_ALIGNMENT_COMPLETE", "description": "Coarse alignment completed" },
+      {
+        "value": "8",
+        "ascii": "DETERMINING_ORIENTATION",
+        "description": "INS is determining the IMU axis aligned with gravity."
+      },
+      { "value": "9", "ascii": "WAITING_INITIALPOS", "description": "Waiting for position" },
+      { "value": "10", "ascii": "WAITING_AZIMUTH", "description": "Waiting for azimuth" },
+      {
+        "value": "11",
+        "ascii": "INITIALIZING_BIASES",
+        "description": "INS filter estimates initial biases during the first 10 seconds of stationary data."
+      },
+      {
+        "value": "12",
+        "ascii": "MOTION_DETECT",
+        "description": "INS filter has not completely aligned but has detected motion."
+      }
+    ]
+  },
+  "table_4_9_offset_type": {
+    "title": "Table 4-9 Offset Type",
+    "columns": ["value", "ascii", "description"],
+    "rows": [
+      { "value": "1", "ascii": "ANT1", "description": "IMU to antenna lever arm" },
+      { "value": "8", "ascii": "ALIGN", "description": "Align offset" },
+      { "value": "11", "ascii": "RBV", "description": "IMU body to vehicle offset" }
+    ]
+  },
+  "table_4_10_data_source": {
+    "title": "Table 4-10 Data Source",
+    "columns": ["value", "ascii", "description"],
+    "rows": [
+      { "value": "1", "ascii": "FROM_NVM", "description": "Offset values originate from saved parameters in NVM." },
+      {
+        "value": "2",
+        "ascii": "CALIBRATING",
+        "description": "Offset values originate from a currently running calibration process."
+      },
+      {
+        "value": "3",
+        "ascii": "CALIBRATED",
+        "description": "Offset values originate from a completed calibration process."
+      },
+      {
+        "value": "4",
+        "ascii": "FROM_COMMAND",
+        "description": "Offset values originate from a user command."
+      },
+      { "value": "5", "ascii": "RESET", "description": "Offset values originate from a system reset." },
+      {
+        "value": "6",
+        "ascii": "FROM_DUAL_ANT",
+        "description": "Offset values originate from a dual antenna Align solution."
+      },
+      {
+        "value": "7",
+        "ascii": "INS_CONVERGING",
+        "description": "Offset values originate from initial input values; calibration is on hold until INS solution converges."
+      },
+      {
+        "value": "8",
+        "ascii": "INSUFFICIENT_SPEED",
+        "description": "Offset values originate from a currently running calibration process; further estimation on hold due to insufficient speed."
+      },
+      {
+        "value": "9",
+        "ascii": "HIGH_ROTATION",
+        "description": "Offset values originate from a currently running calibration process; estimation on hold due to high vehicle rotations."
+      }
+    ]
+  },
+  "table_4_11_ins_extended_solution_status": {
+    "title": "Table 4-11 INS Extended Solution Status",
+    "columns": ["nibble", "bit", "mask", "description", "range"],
+    "rows": [
+      { "nibble": "N0", "bit": "0", "mask": "0x00000001", "description": "Position update", "range": "0=Unused, 1=Used" },
+      { "nibble": "N0", "bit": "1", "mask": "0x00000002", "description": "Phase update", "range": "0=Unused, 1=Used" },
+      { "nibble": "N0", "bit": "2", "mask": "0x00000004", "description": "Zero velocity update", "range": "0=Unused, 1=Used" },
+      { "nibble": "N0", "bit": "3", "mask": "0x00000008", "description": "Wheel sensor update", "range": "0=Unused, 1=Used" },
+      { "nibble": "N1", "bit": "4", "mask": "0x00000010", "description": "ALIGN (heading) update", "range": "0=Unused, 1=Used" },
+      { "nibble": "N1", "bit": "5", "mask": "0x00000020", "description": "External position update", "range": "0=Unused, 1=Used" },
+      { "nibble": "N1", "bit": "6", "mask": "0x00000040", "description": "INS solution convergence mark", "range": "0=Unused, 1=Used" },
+      { "nibble": "N2", "bit": "7", "mask": "0x00000080", "description": "Doppler update", "range": "0=Unused, 1=Used" },
+      { "nibble": "N2", "bit": "8", "mask": "0x00000100", "description": "Pseudorange update", "range": "0=Unused, 1=Used" },
+      { "nibble": "N2", "bit": "9", "mask": "0x00000200", "description": "Velocity update", "range": "0=Unused, 1=Used" },
+      { "nibble": "N2", "bit": "10", "mask": "0x00000400", "description": "Reserved", "range": "--" },
+      { "nibble": "N2", "bit": "11", "mask": "0x00000800", "description": "Dead reckoning update", "range": "0=Unused, 1=Used" },
+      { "nibble": "N3", "bit": "12", "mask": "0x00001000", "description": "Phase wind up update", "range": "0=Unused, 1=Used" },
+      { "nibble": "N3", "bit": "13", "mask": "0x00002000", "description": "Course overground update", "range": "0=Unused, 1=Used" },
+      { "nibble": "N3", "bit": "14", "mask": "0x00004000", "description": "External velocity update", "range": "0=Unused, 1=Used" },
+      { "nibble": "N3", "bit": "15", "mask": "0x00008000", "description": "External attitude update", "range": "0=Unused, 1=Used" },
+      { "nibble": "N4", "bit": "16", "mask": "0x00010000", "description": "External heading update", "range": "0=Unused, 1=Used" },
+      { "nibble": "N4", "bit": "17", "mask": "0x00020000", "description": "External height update", "range": "0=Unused, 1=Used" },
+      { "nibble": "N4", "bit": "18", "mask": "0x00040000", "description": "Reserved", "range": "--" },
+      { "nibble": "N4", "bit": "19", "mask": "0x00080000", "description": "Reserved", "range": "--" },
+      { "nibble": "N5", "bit": "20", "mask": "0x00100000", "description": "Rover position update", "range": "0=Unused, 1=Used" },
+      {
+        "nibble": "N5",
+        "bit": "21",
+        "mask": "0x00200000",
+        "description": "Rover position update type",
+        "range": "0=Non-RTK update, 1=RTK integer update"
+      },
+      { "nibble": "N5", "bit": "22", "mask": "0x00400000", "description": "Reserved", "range": "--" },
+      { "nibble": "N5", "bit": "23", "mask": "0x00800000", "description": "Reserved", "range": "--" },
+      {
+        "nibble": "N6",
+        "bit": "24",
+        "mask": "0x01000000",
+        "description": "Turn on biases estimated",
+        "range": "0=Static turn-on biases not estimated, 1=Estimated"
+      },
+      {
+        "nibble": "N6",
+        "bit": "25",
+        "mask": "0x02000000",
+        "description": "Alignment direction verified",
+        "range": "0=Not verified, 1=Verified"
+      },
+      {
+        "nibble": "N6",
+        "bit": "26",
+        "mask": "0x04000000",
+        "description": "Alignment indication 1 (see manual note)",
+        "range": "0=Not set, 1=Set"
+      },
+      {
+        "nibble": "N6",
+        "bit": "27",
+        "mask": "0x08000000",
+        "description": "Alignment indication 2 (see manual note)",
+        "range": "0=Not set, 1=Set"
+      },
+      {
+        "nibble": "N7",
+        "bit": "28",
+        "mask": "0x10000000",
+        "description": "Alignment indication 3",
+        "range": "0=Not set, 1=Set"
+      },
+      {
+        "nibble": "N7",
+        "bit": "29",
+        "mask": "0x20000000",
+        "description": "NVM Seed indication 1",
+        "range": "0=Not set, 1=Set"
+      },
+      {
+        "nibble": "N7",
+        "bit": "30",
+        "mask": "0x40000000",
+        "description": "NVM Seed indication 2",
+        "range": "0=Not set, 1=Set"
+      },
+      {
+        "nibble": "N7",
+        "bit": "31",
+        "mask": "0x80000000",
+        "description": "NVM Seed indication 3",
+        "range": "0=Not set, 1=Set"
+      }
+    ],
+    "notes": [
+      "Alignment indication bits cross-reference alignment tables in the UG017 manual."
+    ]
+  },
+  "table_4_12_alignment_indication": {
+    "title": "Table 4-12 Alignment Indication",
+    "columns": ["bits", "hex", "alignment_type"],
+    "rows": [
+      { "bits": "000", "hex": "0x00", "alignment_type": "Incomplete alignment" },
+      { "bits": "001", "hex": "0x01", "alignment_type": "Static" },
+      { "bits": "010", "hex": "0x02", "alignment_type": "Kinematic" },
+      { "bits": "011", "hex": "0x03", "alignment_type": "Dual antenna" },
+      { "bits": "100", "hex": "0x04", "alignment_type": "User command" },
+      { "bits": "101", "hex": "0x05", "alignment_type": "NVM seed" }
+    ]
+  },
+  "table_4_13_nvm_seed_indicator": {
+    "title": "Table 4-13 NVM Seed Indicator Description",
+    "columns": ["bits", "hex", "description"],
+    "rows": [
+      { "bits": "000", "hex": "0x00", "description": "NVM seed inactive" },
+      { "bits": "001", "hex": "0x01", "description": "Seed stored in NVM is invalid" },
+      { "bits": "010", "hex": "0x02", "description": "NVM seed failed validation check" },
+      { "bits": "011", "hex": "0x03", "description": "NVM seed is pending validation (awaiting GNSS)" },
+      { "bits": "100", "hex": "0x04", "description": "NVM seed injected (includes error model data)" },
+      {
+        "bits": "101",
+        "hex": "0x05",
+        "description": "NVM seed data ignored due to user-commanded filter reset or configuration change"
+      },
+      { "bits": "110", "hex": "0x06", "description": "NVM seed error model data injected" }
+    ]
+  },
+  "table_4_14_clock_model_status": {
+    "title": "Table 4-14 Clock Model Status",
+    "columns": ["value", "ascii", "description"],
+    "rows": [
+      { "value": "0", "ascii": "VALID", "description": "The clock model is valid." },
+      { "value": "1", "ascii": "CONVERGING", "description": "The clock model is near validity." },
+      { "value": "2", "ascii": "ITERATING", "description": "The clock model is iterating towards validity." },
+      { "value": "3", "ascii": "INVALID", "description": "The clock model is not valid." }
+    ]
+  },
+  "table_4_15_status_of_data_bits": {
+    "title": "Table 4-15 Status of Data Bits",
+    "columns": ["bit", "mask", "description"],
+    "rows": [
+      { "bit": "0", "mask": "0x01", "description": "Left front wheel speed valid" },
+      { "bit": "1", "mask": "0x02", "description": "Right front wheel speed valid" },
+      { "bit": "2", "mask": "0x04", "description": "Left rear wheel speed valid" },
+      { "bit": "3", "mask": "0x08", "description": "Right rear wheel speed valid" },
+      { "bit": "4", "mask": "0x10", "description": "Reserved wheel speed 1 valid" },
+      { "bit": "5", "mask": "0x20", "description": "Reserved wheel speed 2 valid" },
+      { "bit": "6", "mask": "0x40", "description": "Steering angle valid" },
+      { "bit": "7", "mask": "0x80", "description": "Gear valid" },
+      { "bit": "8", "mask": "0x100", "description": "Speed direction valid" }
+    ]
+  },
+  "table_4_16_imu_raw_conversion": {
+    "title": "Table 4-16 IMU Raw Data Conversion Factor",
+    "columns": ["model", "imu", "conversion_coefficient", "frequency_hz", "scale_factor"],
+    "rows": [
+      {
+        "model": "X1-3 / A1-3",
+        "imu": "Gyro",
+        "conversion_coefficient": "3.35276126865172e-05 °/s/LSB",
+        "frequency_hz": "100",
+        "scale_factor": "3.35276126865172e-07 °/LSB"
+      },
+      {
+        "model": "X1-3 / A1-3",
+        "imu": "Accel",
+        "conversion_coefficient": "4.65661827307739e-06 m/s²/LSB",
+        "frequency_hz": "100",
+        "scale_factor": "4.65661827307739e-08 m/s/LSB"
+      },
+      {
+        "model": "X1-5 / A1-5",
+        "imu": "Gyro",
+        "conversion_coefficient": "3.0517578125e-05 °/s/LSB",
+        "frequency_hz": "125",
+        "scale_factor": "2.44140625e-07 °/LSB"
+      },
+      {
+        "model": "X1-5 / A1-5",
+        "imu": "Accel",
+        "conversion_coefficient": "3.74094003939414e-06 m/s²/LSB",
+        "frequency_hz": "125",
+        "scale_factor": "2.99275207519531e-08 m/s/LSB"
+      },
+      {
+        "model": "X1-6 / A1-6",
+        "imu": "Gyro",
+        "conversion_coefficient": "2.88991280100586e-05 °/s/LSB",
+        "frequency_hz": "125",
+        "scale_factor": "2.31193542480469e-07 °/LSB"
+      },
+      {
+        "model": "X1-6 / A1-6",
+        "imu": "Accel",
+        "conversion_coefficient": "7.48188018798828e-06 m/s²/LSB",
+        "frequency_hz": "125",
+        "scale_factor": "5.98550415039063e-08 m/s/LSB"
+      },
+      {
+        "model": "X1-7H",
+        "imu": "Gyro",
+        "conversion_coefficient": "2.88992217092803e-05 (0.0151515/216*125) °/s/LSB",
+        "frequency_hz": "125",
+        "scale_factor": "2.31193737674242e-07 (0.0151515/216) °/LSB"
+      },
+      {
+        "model": "X1-7H",
+        "imu": "Gyro",
+        "conversion_coefficient": "5.04386570090765e-07 rad/s/LSB",
+        "frequency_hz": "125",
+        "scale_factor": "4.03509256072612e-09 rad/LSB"
+      },
+      {
+        "model": "X1-7H",
+        "imu": "Accel",
+        "conversion_coefficient": "9.35235023498535e-06 (0.5*g/216*125) m/s²/LSB",
+        "frequency_hz": "125",
+        "scale_factor": "7.48188018798828e-08 (0.5*g/216) m/s/LSB"
+      },
+      {
+        "model": "X26 / X36D",
+        "imu": "Gyro",
+        "conversion_coefficient": "1.9073486328125e-05 °/s/LSB",
+        "frequency_hz": "100",
+        "scale_factor": "1.9073486328125e-07 °/LSB"
+      },
+      {
+        "model": "X26 / X36D",
+        "imu": "Accel",
+        "conversion_coefficient": "3.05071567298917e-06 m/s²/LSB",
+        "frequency_hz": "100",
+        "scale_factor": "3.05071567298917e-08 m/s/LSB"
+      },
+      {
+        "model": "M21",
+        "imu": "Gyro",
+        "conversion_coefficient": "1.52587890625e-05 °/s/LSB",
+        "frequency_hz": "100",
+        "scale_factor": "1.52587890625e-07 °/LSB"
+      },
+      {
+        "model": "M21",
+        "imu": "Accel",
+        "conversion_coefficient": "7.48188018798828e-06 m/s²/LSB",
+        "frequency_hz": "100",
+        "scale_factor": "7.48188018798828e-08 m/s/LSB"
+      },
+      {
+        "model": "M22 (XY)",
+        "imu": "Gyro",
+        "conversion_coefficient": "1.52587890625e-05 °/s/LSB",
+        "frequency_hz": "100",
+        "scale_factor": "1.52587890625e-07 °/LSB"
+      },
+      {
+        "model": "M22 (Z)",
+        "imu": "Gyro",
+        "conversion_coefficient": "2.31193737674242e-05 °/s/LSB",
+        "frequency_hz": "100",
+        "scale_factor": "2.31193737674242e-07 °/LSB"
+      },
+      {
+        "model": "M22",
+        "imu": "Accel",
+        "conversion_coefficient": "7.48188018798828e-06 m/s²/LSB",
+        "frequency_hz": "100",
+        "scale_factor": "7.48188018798828e-08 m/s/LSB"
+      }
+    ]
+  },
+  "table_4_17_imu_type": {
+    "title": "Table 4-17 IMU Type",
+    "columns": ["value", "ascii", "model", "imu_type"],
+    "rows": [
+      { "value": "3", "ascii": "3", "model": "X1-3 / A1-3", "imu_type": "ADIS 16505" },
+      { "value": "4", "ascii": "4", "model": "X1-4 / A1-4", "imu_type": "TDK IIM-46234" },
+      { "value": "5", "ascii": "5", "model": "X1-5 / A1-5", "imu_type": "EPSON_G354" },
+      { "value": "6", "ascii": "6", "model": "X1-6 / A1-6", "imu_type": "EPSON_G365" },
+      { "value": "7", "ascii": "7", "model": "X1-7 / A1-7", "imu_type": "EPSON_G370" }
+    ]
+  },
+  "table_4_18_system_alignment_mode": {
+    "title": "Table 4-18 System Alignment Mode",
+    "columns": ["ascii", "value", "description"],
+    "rows": [
+      { "ascii": "UNAIDED", "value": "0", "description": "Static coarse alignment or kinematic alignment methods are available." },
+      { "ascii": "AIDED_TRANSFER", "value": "2", "description": "Seed the initial azimuth estimate from the ALIGN solution." },
+      {
+        "ascii": "AUTOMATIC",
+        "value": "3",
+        "description": "Seed the full attitude from the ALIGN solution and perform static or kinematic alignment."
+      },
+      { "ascii": "STATIC", "value": "4", "description": "Static coarse alignment method only." },
+      { "ascii": "KINEMATIC", "value": "5", "description": "Kinematic alignment method only." }
+    ]
+  },
+  "table_4_19_relative_ins_vector": {
+    "title": "Table 4-19 User Specified Output Frame and Relative Direction",
+    "sections": [
+      {
+        "type": "output_frame",
+        "columns": ["ascii", "value", "description"],
+        "rows": [
+          { "ascii": "ROVER", "value": "1", "description": "Output frame of the rover INS solution (default)." },
+          { "ascii": "MASTER", "value": "2", "description": "Output frame of the master INS solution." },
+          { "ascii": "ECEF", "value": "3", "description": "Earth-Centered Earth-Fixed frame." },
+          { "ascii": "LOCALLEVEL", "value": "4", "description": "Local level frame." }
+        ]
+      },
+      {
+        "type": "direction",
+        "columns": ["ascii", "value", "description"],
+        "rows": [
+          { "ascii": "FALSE", "value": "0", "description": "Rover to Master (default)." },
+          { "ascii": "TRUE", "value": "1", "description": "Master to Rover." }
+        ]
+      }
+    ]
+  },
+  "table_4_20_translation_offset_type": {
+    "title": "Table 4-20 Translation Offset Type",
+    "columns": ["ascii", "value", "description"],
+    "rows": [
+      { "ascii": "ANT1", "value": "1", "description": "Offset to primary GNSS antenna phase center." },
+      { "ascii": "ANT2", "value": "2", "description": "Offset to secondary GNSS antenna phase center." },
+      {
+        "ascii": "EXTERNAL",
+        "value": "3",
+        "description": "Offset to external position source; used with EXTERNALPVAS command."
+      },
+      {
+        "ascii": "USER",
+        "value": "4",
+        "description": "Offset to user output location (shifts INSPVA/INSPOS/INSVEL/etc.)."
+      },
+      {
+        "ascii": "MARK1",
+        "value": "5",
+        "description": "Offset to MARK1 output location (affects MARK1PVA)."
+      },
+      {
+        "ascii": "MARK2",
+        "value": "6",
+        "description": "Offset to MARK2 output location (affects MARK2PVA)."
+      },
+      {
+        "ascii": "GIMBAL",
+        "value": "7",
+        "description": "Offset to gimbal mount center of rotation."
+      },
+      {
+        "ascii": "MARK3",
+        "value": "9",
+        "description": "Offset to MARK3 output location (affects MARK3PVA)."
+      },
+      {
+        "ascii": "MARK4",
+        "value": "10",
+        "description": "Offset to MARK4 output location (affects MARK4PVA)."
+      }
+    ]
+  },
+  "table_4_21_translation_input_frame": {
+    "title": "Table 4-21 Translation Input Frame",
+    "columns": ["ascii", "value", "description"],
+    "rows": [
+      { "ascii": "IMUBODY", "value": "0", "description": "IMU enclosure frame; IMU navigation center used as origin." },
+      { "ascii": "VEHICLE", "value": "1", "description": "Vehicle frame with IMU navigation center as origin." }
+    ]
+  },
+  "table_4_22_rotation_offset_type": {
+    "title": "Table 4-22 Rotation Offset Type",
+    "columns": ["ascii", "value", "description"],
+    "rows": [
+      {
+        "ascii": "USER",
+        "value": "4",
+        "description": "Rotation from IMU body frame to user output frame (affects INSPVA/INSPOSEtc.)."
+      },
+      { "ascii": "MARK1", "value": "5", "description": "Rotation to MARK1 output frame (affects MARK1PVA)." },
+      { "ascii": "MARK2", "value": "6", "description": "Rotation to MARK2 output frame (affects MARK2PVA)." },
+      {
+        "ascii": "ALIGN",
+        "value": "8",
+        "description": "Rotation to ALIGN dual antenna solution frame."
+      },
+      { "ascii": "MARK3", "value": "9", "description": "Rotation to MARK3 output frame (affects MARK3PVA)." },
+      { "ascii": "MARK4", "value": "10", "description": "Rotation to MARK4 output frame (affects MARK4PVA)." },
+      { "ascii": "RBV", "value": "11", "description": "Rotation to vehicle frame." },
+      { "ascii": "RBM", "value": "12", "description": "Rotation to gimbal mount body frame." }
+    ]
+  }
+}

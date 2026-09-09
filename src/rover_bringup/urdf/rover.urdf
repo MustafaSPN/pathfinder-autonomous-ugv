@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<robot name="rover_bot">
+
+  <material name="blue">
+    <color rgba="0 0 0.8 1"/>
+  </material>
+  
+  <material name="black">
+    <color rgba="0 0 0 1"/>
+  </material>
+
+  <material name="red">
+    <color rgba="1 0 0 1"/>
+  </material>
+
+  <!-- Base Link: Geometric Center of the Chassis -->
+  <!-- TRACKED (PALETLI) VEHICLE: Length 1.0m x Width 0.74m x Height 0.41m -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <!-- Chassis Box: 100cm x 74cm x 41cm -->
+        <box size="1.0 0.74 0.41"/>
+      </geometry>
+      <material name="blue"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+  <link name="base_footprint"/>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="base_footprint"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- gps_link -->
+  <!-- GNSS antenna: lateral center, rear-most, highest point of the chassis.
+       Rear edge X = -0.5 (length 1.0), lateral center Y = 0, top Z = +0.205 (height 0.41) -->
+  <link name="gps_link">
+    <visual>
+      <geometry>
+        <box size="0.05 0.05 0.02"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <joint name="gps_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="gps_link"/>
+    <origin xyz="-0.5 0 0.205" rpy="0 0 0"/>
+  </joint>
+
+  <!-- imu_link -->
+  <!-- From the vehicle's exact center: 1.5cm to the LEFT (+Y), 7cm FORWARD (+X),
+       at the highest point (top Z = +0.205). -->
+  <link name="imu_link">
+    <visual>
+      <geometry>
+        <box size="0.05 0.05 0.02"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+    <origin xyz="0.07 0.015 0.205" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ============================================================
+       TRACKS (PALETLER) - Differential / Skid-steer drive
+       Track-to-track separation (centerline) = 0.625m  ->  Y = +/-0.3125
+       This separation is the effective wheel_separation for diff drive.
+       ============================================================ -->
+
+  <!-- Left Track -->
+  <link name="left_track">
+    <visual>
+      <geometry>
+        <box size="0.9 0.12 0.2"/>
+      </geometry>
+      <material name="black"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+  <joint name="left_track_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="left_track"/>
+    <origin xyz="0 0.3125 -0.155" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Right Track -->
+  <link name="right_track">
+    <visual>
+      <geometry>
+        <box size="0.9 0.12 0.2"/>
+      </geometry>
+      <material name="black"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+  <joint name="right_track_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="right_track"/>
+    <origin xyz="0 -0.3125 -0.155" rpy="0 0 0"/>
+  </joint>
+
+  <!-- hesai_lidar: Hesai driver pointcloud'u bu frame'de yayinlar (/lidar_points).
+       Bu link olmadan RViz pointcloud'u map/odom'a donusturemez -> gorunmez.
+       Konum: gps_link'in aynasi -> arac EN ON, orta, ust nokta.
+         On kenar X=+0.5 (uzunluk 1.0), lateral orta Y=0, ust Z=+0.205 (yukseklik 0.41).
+       Yonelim (yaw=+90deg / pi/2): saha tespiti -> aracin onu lidar'in -y ekseninde
+         cikiyor (bkz. webapp ROT_OFFSET=pi/2). Rz(90) lidar -y'yi base_link +x'e
+         (arac onu) esler. Montaj yonu degisirse yaw'i buna gore guncelle. -->
+  <link name="hesai_lidar">
+    <visual>
+      <geometry>
+        <box size="0.08 0.08 0.06"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+
+  <joint name="hesai_lidar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="hesai_lidar"/>
+    <origin xyz="0.5 0 0.205" rpy="0 0 1.5708"/>
+  </joint>
+
+</robot>

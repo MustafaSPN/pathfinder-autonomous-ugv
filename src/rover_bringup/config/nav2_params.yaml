@@ -1,0 +1,288 @@
+# ==========================================
+# NAV2 PARAMS - PALETLI (diff/skid-drive)
+# Arac: 1.0m x 0.74m x 0.41m, paletler arasi W=0.625m
+# System: GPS 20Hz + Wheel Odom (C_ERPM=9850) + IMU, No Lidar
+# Controller: Regulated Pure Pursuit
+#
+# HIZ BUTCESI:
+#   Skid-steer kurali: v_palet = v +/- w*0.3125 <= V_MAX_TRACK (1.0 m/s).
+#   Bu butce artik ESP FIRMWARE'de yaw-oncelikli olarak uygulaniyor:
+#   donus daima tam verilir, ileri hiz kalan butceye gore ESP'de kisilir.
+#   Nav2 bu sayede duzlukte tavana yakin (0.95) isteyebilir; virajda hem
+#   RPP regulated scaling (feed-forward) hem ESP butcesi (garanti) yavaslatir.
+# ==========================================
+
+bt_navigator:
+  ros__parameters:
+    use_sim_time: false
+    global_frame: map
+    robot_base_frame: base_link
+    odom_topic: /odometry/local
+    bt_loop_duration: 100
+    default_server_timeout: 20
+    wait_for_service_timeout: 1000
+    navigators: ["navigate_to_pose", "navigate_through_poses"]
+    default_nav_through_poses_bt_xml: "/root/ros2_ws/src/rover_bringup/config/my_nav_through_poses_bt.xml"
+    navigate_to_pose:
+      plugin: "nav2_bt_navigator::NavigateToPoseNavigator"
+    navigate_through_poses:
+      plugin: "nav2_bt_navigator::NavigateThroughPosesNavigator"
+
+
+bt_navigator_navigate_to_pose:
+  ros__parameters:
+    use_sim_time: false
+
+bt_navigator_navigate_through_poses:
+  ros__parameters:
+    use_sim_time: false
+
+controller_server:
+  ros__parameters:
+    use_sim_time: false
+
+    controller_frequency: 20.0
+
+    odom_topic: /odometry/local
+
+    # Robot durduğunda titremesini önlemek için thresholdlar
+    min_x_velocity_threshold: 0.005
+    min_y_velocity_threshold: 0.005
+    min_theta_velocity_threshold: 0.005
+
+    # Hız arttığı için hata toleransını biraz artırdık
+    failure_tolerance: 5.0
+
+    progress_checker_plugin: "progress_checker"
+    goal_checker_plugins: ["goal_checker"]
+    controller_plugins: ["FollowPath"]
+    current_goal_checker: "goal_checker"
+
+    # GPS + Dış Mekan için gevşek ilerleme kontrolü
+    progress_checker:
+      plugin: "nav2_controller::SimpleProgressChecker"
+      required_movement_radius: 0.05
+      movement_time_allowance: 30.0
+
+    # GPS Hedef Toleransları
+    goal_checker:
+      plugin: "nav2_controller::SimpleGoalChecker"
+      stateful: true
+      # 0.3m siki tolerans (RTK hassasiyeti buna izin verir; EKF gurultusu izle).
+      # NOT: hedef etrafinda daire cizme/avlanma gorulurse 0.5'e geri cik.
+      xy_goal_tolerance: 0.3
+      yaw_goal_tolerance: 3.14 # Yön fark etmez
+
+    # --- PURE PURSUIT AYARLARI (hiz butcesi: v=0.55, w=0.8) ---
+    FollowPath:
+      plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
+
+      # HEDEF HIZ: ESP'de yaw-oncelikli hiz butcesi var (V_MAX_TRACK=1.0):
+      # donus komutu her zaman tam uygulanir, ileri hiz kalan butceye gore
+      # ESP'de otomatik kisilir. Bu yuzden nav2 tavana yakin isteyebilir.
+      # 0.95: kucuk duzeltmelerde (w<0.16) hiz hic dusmesin diye ufak marj.
+      desired_linear_vel: 0.95
+      max_angular_vel: 0.8
+
+      # Lookahead (1.0 m/s icin yeniden olceklendi):
+      # Hiz-olcekli: duzlukte (0.95 m/s) L = 0.95*3.0 ~ 2.85m -> gecikme/L orani
+      # 0.2'ye iner, slalom soner. Virajda regulated scaling hizi dusurdugu icin
+      # L otomatik kisalir (0.3-0.5 m/s -> 0.9-1.5m) -> donusler dar kalir.
+      # (0.55 m/s doneminde sabit 1.6 idealdi; hiz artinca zaman-bazli olcek sart oldu)
+      use_velocity_scaled_lookahead_dist: true
+      lookahead_time: 4.0
+      min_lookahead_dist: 1.2
+      max_lookahead_dist: 4.0
+
+      # Paletli: yerinde donebilir (skid-steer)
+      use_rotate_to_heading: true
+      # DOGRU parametre adi: rotate_to_heading_angular_vel (rotate_to_heading_vel yok sayilir!)
+      # 0.8 rad/s: pivot overshoot = w * gecikme(~0.3s) ~ 14° < min_angle 34°.
+      # 1.5'te overshoot 43° oluyordu -> ters yone yeni pivot -> sonsuz saga-sola avlanma!
+      rotate_to_heading_angular_vel: 0.8
+      # 1.3 rad (~75°): pivot SADECE cok keskin donuslerde (rota basi, U-donusu).
+      # Orta donusler artik durmadan seyir halinde viraj olarak alinir - hiz butcesi
+      # duzeldigi icin komutlanan donus gercekten uygulanabiliyor (0.6'da surekli
+      # dur-duzelt yapiyordu; eski "genis yay" sorunu butce hatasindandi, geri gelmez).
+      rotate_to_heading_min_angle: 1.3
+
+      # Virajlarda hız regülasyonu
+      # LOG BULGUSU (2. tur, 1.0 m/s donemi): uzun lookahead (2.85m) kosenin
+      # uzerinden kestirme bakip egriligi az gosteriyordu -> virajda yavaslamiyordu
+      # (0.7-0.9 m/s ile viraj!) -> ~0.9m acikta cikis -> 30-40m suren salinim.
+      # Cozum: egriligi lookahead'den BAGIMSIZ sabit kisa mesafeden olc.
+      use_regulated_linear_velocity_scaling: true
+      regulated_linear_scaling_min_radius: 1.5   # viraj yaricapi <1.5m'de yavaslamaya basla
+      regulated_linear_scaling_min_speed: 0.3    # Virajda min 0.3 m/s'de kalsin
+
+      allow_reversing: false
+      transform_tolerance: 1.0
+      # DIKKAT - DEADLOCK TUZAGI: RPP bu clamp'i OLCULEN hiza gore uygular.
+      # Dusuk deger (3.0) -> ilk komut 0.15 rad/s = 462 ERPM -> VESC stall ->
+      # robot donmez -> olculen hiz 0 kalir -> komut 0.15'te sonsuza dek kilitli.
+      # 16.0: komut ilk tick'te 0.8'e atlar (0.8/0.05=16). Gercek rampalamayi
+      # velocity_smoother (3 rad/s², OPEN_LOOP=kilitlenmez) + ESP SLEW yapar.
+      max_angular_accel: 16.0
+
+planner_server:
+  ros__parameters:
+    use_sim_time: false
+    expected_planner_frequency: 1.0
+    planner_plugins: ["GridBased"]
+
+    # Boş haritada engelsiz rota için NavFn ideal
+    GridBased:
+      plugin: "nav2_navfn_planner/NavfnPlanner"
+      tolerance: 2.0
+      use_astar: false
+      allow_unknown: true # Haritanın boş yerlerinden geçebilmesi için ŞART
+
+smoother_server:
+  ros__parameters:
+    use_sim_time: false
+    smoother_plugins: ["simple_smoother"]
+    simple_smoother:
+      plugin: "nav2_smoother::SimpleSmoother"
+      tolerance: 1.0e-10
+      max_its: 1000
+      do_refinement: true
+
+# ==========================
+# COSTMAPS
+# ==========================
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      use_sim_time: false
+      global_frame: map
+      robot_base_frame: base_link
+      update_frequency: 2.0
+      publish_frequency: 1.0
+      # 0.2 idi -> 1000m harita @0.2 = 25M hucre, Pi'yi boguyordu (NavFn RAM+CPU).
+      # Bos haritada 0.5 fazlasiyla yeterli (4M hucre, eski calisan deger).
+      resolution: 0.5
+      track_unknown_space: false
+      rolling_window: false
+      # Statik harita /map'ten (1.0m) gelir; full costmap'i her saniye basma ->
+      # ince çözünürlükte DDS taşmasını önler (sadece güncellemeler gider).
+      always_send_full_costmap: false
+      # Paletli araç gövdesi: 1.0m (X) x 0.74m (Y), base_link merkez
+      footprint: "[[0.5, 0.37], [0.5, -0.37], [-0.5, -0.37], [-0.5, 0.37]]"
+      footprint_padding: 0.05
+      plugins: ["static_layer", "inflation_layer"]
+
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_topic: /map
+        map_subscribe_transient_local: true
+
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        inflation_radius: 0.7 # Araç çevrel yarıçapı ~0.62m üstünde güvenlik payı
+        cost_scaling_factor: 3.0
+
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      use_sim_time: false
+      global_frame: odom
+      robot_base_frame: base_link
+      update_frequency: 5.0
+      publish_frequency: 2.0
+      rolling_window: true
+      width: 20
+      height: 20
+      resolution: 0.2
+      track_unknown_space: false
+      always_send_full_costmap: true
+      # Paletli araç gövdesi: 1.0m (X) x 0.74m (Y), base_link merkez
+      footprint: "[[0.5, 0.37], [0.5, -0.37], [-0.5, -0.37], [-0.5, 0.37]]"
+      footprint_padding: 0.05
+      plugins: ["inflation_layer"]
+
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        inflation_radius: 0.7
+        cost_scaling_factor: 3.0
+
+# ==========================
+# BEHAVIORS
+# ==========================
+behavior_server:
+  ros__parameters:
+    use_sim_time: false
+    global_frame: map
+    robot_base_frame: base_link
+    odom_topic: /odometry/local
+    behavior_plugins: ["spin", "backup", "wait"]
+
+    spin:
+      plugin: "nav2_behaviors/Spin"
+      max_rotational_vel: 2.5
+      rotational_acc_lim: 1.2
+
+    backup:
+      plugin: "nav2_behaviors/BackUp"
+      backup_dist: 0.50  # Biraz daha fazla geri gitsin
+      backup_speed: 0.5  # Geri gitme hızı artırıldı
+      time_allowance: 10.0
+
+    wait:
+      plugin: "nav2_behaviors/Wait"
+
+# ==========================
+# WAYPOINT FOLLOWER
+# ==========================
+waypoint_follower:
+  ros__parameters:
+    use_sim_time: false
+    loop_rate: 10
+    stop_on_failure: false
+    waypoint_task_executor_plugin: "wait_at_waypoint"
+
+    wait_at_waypoint:
+      plugin: "nav2_waypoint_follower::WaitAtWaypoint"
+      enabled: true
+      waypoint_pause_duration: 0 # Bekleme kapali, akici gitsin
+
+# ==========================
+# VELOCITY SMOOTHER (LIMITOR)
+# ==========================
+velocity_smoother:
+  ros__parameters:
+    use_sim_time: false
+    smoothing_frequency: 20.0
+    scale_velocities: false
+    feedback: "OPEN_LOOP"
+    odom_topic: /odometry/local
+    odom_duration: 0.2
+
+    # --- HIZ LIMITLERI (butce artik ESP'de: yaw-oncelikli, V_MAX_TRACK=1.0) ---
+    # vx: 0.95 + pay = 1.05  |  vyaw: 0.8 + pay = 1.0
+    max_velocity: [1.05, 0.0, 1.0]
+    min_velocity: [0.0, 0.0, -1.0] # ileri only, ama vyaw simetrik
+
+    # Angular 6.0: ESP filtresi artik seffaf (SLEW 4000/20ms, SMOOTH 0.9) ->
+    # 3.0'in gerekcesi kalmadi; yavas rampa 100-270ms gecikme ekliyordu.
+    # 0.8 rad/s'ye 0.13s'de ulasir. Slalom buyurse 4.0'a geri in.
+    max_accel: [1.0, 0.0, 6.0]
+    max_decel: [-1.5, 0.0, -6.0] # Frenleme her zaman ivmelenmeden güçlü olmalı
+
+    deadband_velocity: [0.0, 0.0, 0.0]
+    velocity_timeout: 2.0
+
+# ==========================
+# LIFECYCLE
+# ==========================
+lifecycle_manager:
+  ros__parameters:
+    use_sim_time: false
+    autostart: true
+    node_names:
+      - planner_server
+      - controller_server
+      - smoother_server
+      - behavior_server
+      - bt_navigator
+      - waypoint_follower
+      - velocity_smoother

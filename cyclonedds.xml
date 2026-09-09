@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CycloneDDS xmlns="https://cdds.io/config">
+  <Domain Id="any">
+    <General>
+      <!-- presence_required="false": arayuz DOWN/yoksa fatal hata verme,
+           mevcut olani kullan. Aksi halde wlan0 (hotspot) kapaliyken
+           "does not match an available interface" -> domain olusmuyor. -->
+      <Interfaces>
+        <NetworkInterface name="eth0" presence_required="false"/>
+        <NetworkInterface name="wlan0" presence_required="false"/>
+      </Interfaces>
+      <!-- multicast sadece kesif (SPDP) icin; veri unicast gider.
+           Aksi halde 160 Mbps point cloud multicast'i hotspot WiFi'yi bogar. -->
+      <AllowMulticast>spdp</AllowMulticast>
+    </General>
+    <Internal>
+      <!-- 2.4MB PointCloud2 = ~1800 UDP parcasi/mesaj. Varsayilan 208KB soket
+           tamponu patlamayi tutamiyor -> parca kaybi -> mesaj kaybi.
+           Kernel siniri da yukseltilmeli: net.core.rmem_max (bkz. sysctl) -->
+      <SocketReceiveBufferSize min="10MB"/>
+    </Internal>
+  </Domain>
+</CycloneDDS>

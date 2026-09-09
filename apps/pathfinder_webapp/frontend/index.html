@@ -1,0 +1,2059 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pathfinder Mission Console</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --panel: #0f1620;
+      --card: #111a25;
+      --border: #1f2a38;
+      --text: #e6edf3;
+      --muted: #9aa7b2;
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+      --accent: #60a5fa;
+      --accent2: #7c3aed;
+      --shadow: 0 10px 35px rgba(0, 0, 0, .45);
+      --radius: 16px;
+      --radius2: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(1200px 800px at 15% 10%, rgba(124, 58, 237, 0.18), transparent 50%),
+        radial-gradient(1000px 700px at 90% 0%, rgba(96, 165, 250, 0.18), transparent 55%),
+        var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      overflow: hidden;
+    }
+
+    /* Layout */
+    .app {
+      height: 100vh;
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 14px;
+      padding: 14px;
+    }
+
+    .sidebar {
+      background: linear-gradient(180deg, rgba(17, 26, 37, .9), rgba(13, 19, 27, .9));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      /* allow the whole left column (header + body) to scroll together */
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+      min-width: 360px;
+      /* ensure the sidebar doesn't grow taller than viewport */
+      max-height: 100vh;
+    }
+
+    .side-header {
+      padding: 14px 14px 10px 14px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(15, 22, 32, 0.75);
+      backdrop-filter: blur(10px);
+      /* keep header spacing consistent */
+      flex: 0 0 auto;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 12px 24px rgba(96, 165, 250, .18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      letter-spacing: .5px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.1;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand .sub {
+      margin: 2px 0 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .conn-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      background: rgba(17, 26, 37, 0.6);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--warn);
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.18);
+    }
+
+    .dot.ok {
+      background: var(--good);
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18);
+    }
+
+    .dot.bad {
+      background: var(--bad);
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.16);
+    }
+
+    .side-body {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      /* allow the body to expand inside the scrolling sidebar */
+      flex: 1 1 auto;
+      overflow: visible;
+    }
+
+    .card {
+      background: rgba(17, 26, 37, 0.7);
+      border: 1px solid var(--border);
+      border-radius: var(--radius2);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, .25);
+      overflow: hidden;
+    }
+
+    .card .card-h {
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: rgba(15, 24, 34, 0.7);
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .2px;
+      user-select: none;
+    }
+
+    .card .card-b {
+      padding: 12px;
+    }
+
+    .card-b.scroll {
+      overflow: auto;
+    }
+
+    /* Collapsible cards */
+    .card.collapsible .card-h {
+      cursor: pointer;
+    }
+
+    .chev {
+      display: inline-block;
+      transition: transform .15s ease;
+      color: var(--muted);
+    }
+
+    .card.collapsible.collapsed .chev {
+      transform: rotate(-90deg);
+    }
+
+    .card.collapsible.collapsed .card-b {
+      display: none;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .metric {
+      background: rgba(13, 19, 27, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    .metric .k {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: .2px;
+    }
+
+    .metric .v {
+      margin-top: 4px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .metric .u {
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: 6px;
+      font-weight: 600;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    /* YENİ EKLENEN CSS */
+    .check-container {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+      margin-left: auto;
+      /* En sağa iter */
+      user-select: none;
+    }
+
+    .check-container:hover {
+      color: var(--text);
+    }
+
+    .check-container input {
+      cursor: pointer;
+      accent-color: var(--accent);
+      /* Temanızdaki mavi renk */
+      width: 14px;
+      height: 14px;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: rgba(17, 26, 37, 0.75);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 650;
+      letter-spacing: .2px;
+      transition: transform .06s ease, background .15s ease, border-color .15s ease;
+    }
+
+    button:hover {
+      background: rgba(23, 36, 52, 0.8);
+      border-color: rgba(96, 165, 250, 0.35);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      border-color: rgba(96, 165, 250, 0.35);
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.25), rgba(124, 58, 237, 0.18));
+    }
+
+    .btn-ghost {
+      background: rgba(13, 19, 27, 0.6);
+    }
+
+    .btn-stop {
+      border: none;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(185, 28, 28, 0.95));
+      height: 64px;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: .8px;
+      box-shadow: 0 18px 40px rgba(239, 68, 68, 0.18);
+      width: 100%;
+    }
+
+    .btn-stop:hover {
+      filter: brightness(1.03);
+    }
+
+    /* Resume style (green) used when STOPPED state is active */
+    .btn-resume {
+      border: none;
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.95), rgba(16, 185, 129, 0.95));
+      height: 64px;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: .6px;
+      box-shadow: 0 18px 40px rgba(34, 197, 94, 0.18);
+      width: 100%;
+      color: white;
+    }
+
+    .btn-resume:hover {
+      filter: brightness(1.03);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      resize: vertical;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(13, 19, 27, 0.7);
+      color: var(--text);
+      outline: none;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    textarea:focus {
+      border-color: rgba(96, 165, 250, 0.45);
+      box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.12);
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .hint code {
+      color: #cbd5e1;
+      background: rgba(15, 24, 34, 0.8);
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(31, 42, 56, .8);
+    }
+
+    .logs {
+      height: 180px;
+      overflow: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(13, 19, 27, 0.7);
+      padding: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #cbd5e1;
+    }
+
+    .log-line {
+      margin: 0 0 6px 0;
+      white-space: pre-wrap;
+    }
+
+    .lvl-I {
+      color: #cbd5e1;
+    }
+
+    .lvl-W {
+      color: #fbbf24;
+    }
+
+    .lvl-E {
+      color: #f87171;
+    }
+
+    .lvl-S {
+      color: #fb7185;
+      font-weight: 800;
+    }
+
+    /* Waypoint DnD list (scrollable inside its own box) */
+    .wp-list {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 220px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .wp-list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .wp-list::-webkit-scrollbar-track {
+      background: rgba(13, 19, 27, 0.35);
+      border-radius: 999px;
+    }
+
+    .wp-list::-webkit-scrollbar-thumb {
+      background: rgba(96, 165, 250, 0.25);
+      border: 1px solid rgba(31, 42, 56, 0.9);
+      border-radius: 999px;
+    }
+
+    .wp-list::-webkit-scrollbar-thumb:hover {
+      background: rgba(96, 165, 250, 0.35);
+    }
+
+    .wp-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(13, 19, 27, 0.65);
+      cursor: grab;
+      user-select: none;
+    }
+
+    .wp-item:active {
+      cursor: grabbing;
+    }
+
+    .wp-handle {
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      border: 1px solid rgba(96, 165, 250, 0.35);
+      background: rgba(96, 165, 250, 0.10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 14px;
+      flex: 0 0 auto;
+    }
+
+    .wp-text {
+      flex: 1;
+      min-width: 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      color: #cbd5e1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .wp-badge {
+      font-size: 12px;
+      color: var(--muted);
+      flex: 0 0 auto;
+    }
+
+    .wp-del {
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      background: rgba(239, 68, 68, 0.10);
+      color: #fecaca;
+      padding: 8px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+
+    .wp-del:hover {
+      filter: brightness(1.05);
+    }
+
+    .wp-drop {
+      outline: 2px dashed rgba(96, 165, 250, 0.55);
+      outline-offset: 3px;
+    }
+
+    /* Map panel */
+    .map-wrap {
+      position: relative;
+      background: rgba(13, 19, 27, 0.6);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: auto;
+      height: auto;
+      z-index: 1;
+      /* Haritanın her zaman zeminde olduğundan emin olalım */
+    }
+
+    .map-overlay {
+      position: absolute;
+      left: 14px;
+      top: 14px;
+      display: flex;
+      gap: 10px;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    .overlay-pill {
+      pointer-events: none;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(15, 22, 32, 0.75);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .overlay-pill b {
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    /* --- Custom Checkbox Style --- */
+    /* --- Auto Follow Buton/Checkbox Tasarımı --- */
+    .check-btn-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      /* Mevcut butonlarınızla aynı yükseklik ve hissi vermek için: */
+      padding: 8px 12px;
+      background: rgba(13, 19, 27, 0.6);
+      /* btn-ghost ile aynı taban */
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      /* Temadaki radius değeri */
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      margin-left: auto;
+      /* En sağa yasla */
+    }
+
+    .check-btn-wrapper:hover {
+      background: rgba(23, 36, 52, 0.8);
+      border-color: rgba(96, 165, 250, 0.35);
+    }
+
+    /* Kutu SEÇİLİ olduğunda (Glow Efekti) */
+    .check-btn-wrapper:has(input:checked) {
+      background: rgba(96, 165, 250, 0.15);
+      /* Hafif mavi zemin */
+      border-color: var(--accent);
+      /* Mavi çerçeve */
+      box-shadow: 0 0 15px rgba(96, 165, 250, 0.2);
+      /* Dışarı taşan parlama */
+    }
+
+    /* Gizli Input */
+    .check-btn-wrapper input {
+      display: none;
+      /* Standart kutuyu tamamen gizle */
+    }
+
+    /* Kendi Çizdiğimiz Kutu (Mavi Kare) */
+    .custom-box {
+      width: 16px;
+      height: 16px;
+      border: 1px solid var(--muted);
+      border-radius: 4px;
+      position: relative;
+      transition: all 0.2s;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    /* Seçilince Kutunun İçi */
+    .check-btn-wrapper input:checked~.custom-box {
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 5px var(--accent);
+    }
+
+    /* Tik İşareti (CSS ile çizim) */
+    .custom-box::after {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 1px;
+      width: 4px;
+      height: 9px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg) scale(0);
+      transition: transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+
+    .check-btn-wrapper input:checked~.custom-box::after {
+      transform: rotate(45deg) scale(1);
+    }
+
+    /* Yazı Stili */
+    .check-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.3px;
+    }
+
+    .check-btn-wrapper input:checked~.check-label {
+      color: var(--text);
+      /* Seçiliyken yazı beyazlaşsın */
+    }
+
+    /* ─── Mode Toggle ─── */
+    .mode-toggle {
+      display: flex;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: rgba(13, 19, 27, 0.7);
+    }
+
+    .mode-toggle .mode-btn {
+      flex: 1;
+      padding: 10px 0;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .3px;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      transition: background .2s, color .2s, box-shadow .2s;
+      border-radius: 0;
+    }
+
+    .mode-toggle .mode-btn:hover {
+      background: rgba(23, 36, 52, 0.5);
+    }
+
+    .mode-toggle .mode-btn.active {
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.3), rgba(124, 58, 237, 0.2));
+      color: var(--text);
+      box-shadow: 0 0 18px rgba(96, 165, 250, 0.15);
+    }
+
+    /* ─── Joystick ─── */
+    .joy-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .joy-base {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(13, 19, 27, 0.9) 0%, rgba(17, 26, 37, 0.95) 100%);
+      border: 2px solid var(--border);
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.4), 0 8px 25px rgba(0, 0, 0, 0.3);
+      touch-action: none;
+      user-select: none;
+    }
+
+    .joy-crosshair {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 60%;
+      height: 60%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .joy-crosshair::before,
+    .joy-crosshair::after {
+      content: '';
+      position: absolute;
+      background: rgba(96, 165, 250, 0.12);
+      border-radius: 2px;
+    }
+
+    .joy-crosshair::before {
+      left: 50%;
+      top: 0;
+      width: 1px;
+      height: 100%;
+      transform: translateX(-50%);
+    }
+
+    .joy-crosshair::after {
+      top: 50%;
+      left: 0;
+      height: 1px;
+      width: 100%;
+      transform: translateY(-50%);
+    }
+
+    .joy-knob {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(96, 165, 250, 0.7), rgba(96, 165, 250, 0.35));
+      border: 2px solid rgba(96, 165, 250, 0.6);
+      box-shadow: 0 0 18px rgba(96, 165, 250, 0.3), 0 4px 12px rgba(0, 0, 0, 0.4);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      cursor: grab;
+      transition: box-shadow .15s;
+      z-index: 2;
+    }
+
+    .joy-knob.active {
+      cursor: grabbing;
+      box-shadow: 0 0 28px rgba(96, 165, 250, 0.5), 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .joy-labels {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      font-size: 10px;
+      font-weight: 700;
+      color: rgba(96, 165, 250, 0.35);
+      letter-spacing: .5px;
+    }
+
+    .joy-labels span {
+      position: absolute;
+    }
+
+    .joy-labels .jl-fwd {
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .joy-labels .jl-bck {
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .joy-labels .jl-lft {
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .joy-labels .jl-rgt {
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .joy-output {
+      display: flex;
+      gap: 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .joy-output b {
+      color: var(--text);
+    }
+
+    .speed-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .speed-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .speed-field label {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: .2px;
+    }
+
+    .speed-field input {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(13, 19, 27, 0.7);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 700;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      outline: none;
+      width: 100%;
+    }
+
+    .speed-field input:focus {
+      border-color: rgba(96, 165, 250, 0.45);
+      box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.12);
+    }
+
+    /* ─── View Tabs (Map / Lidar) ─── */
+    .view-tabs {
+      position: absolute;
+      right: 14px;
+      top: 14px;
+      z-index: 1001;
+      display: flex;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(15, 22, 32, 0.85);
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .view-tab {
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      color: var(--muted);
+      padding: 9px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .3px;
+    }
+
+    .view-tab:hover {
+      background: rgba(23, 36, 52, 0.6);
+    }
+
+    .view-tab.active {
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.3), rgba(124, 58, 237, 0.2));
+      color: var(--text);
+    }
+
+    /* ─── Lidar view ─── */
+    #lidarView {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: none;
+      background: radial-gradient(900px 700px at 50% 45%, rgba(96, 165, 250, 0.06), transparent 60%), #0a0e13;
+    }
+
+    #lidarCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .lidar-overlay {
+      position: absolute;
+      right: 14px;
+      bottom: 14px;
+      display: flex;
+      gap: 10px;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .lidar-zoom {
+      position: absolute;
+      left: 14px;
+      bottom: 14px;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .lidar-zoom button {
+      width: 40px;
+      height: 40px;
+      font-size: 18px;
+      font-weight: 800;
+      padding: 0;
+    }
+
+    .lidar-cfg {
+      position: absolute;
+      left: 66px;
+      bottom: 14px;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(15, 22, 32, 0.85);
+      backdrop-filter: blur(10px);
+    }
+
+    .lidar-cfg label {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: .2px;
+    }
+
+    .lidar-cfg input {
+      width: 90px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(13, 19, 27, 0.7);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      outline: none;
+    }
+
+    .lidar-cfg input:focus {
+      border-color: rgba(96, 165, 250, 0.45);
+    }
+
+    /* Leaflet tweaks for dark UI (tiles remain default OSM) */
+    .leaflet-control-attribution,
+    .leaflet-control-zoom a {
+      background: rgba(15, 22, 32, 0.7) !important;
+      color: var(--muted) !important;
+      border: 1px solid var(--border) !important;
+      backdrop-filter: blur(10px);
+    }
+
+    .leaflet-control-zoom a {
+      color: var(--text) !important;
+    }
+
+    @media (max-width: 980px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        order: 2;
+      }
+
+      .map-wrap {
+        order: 1;
+        height: 52vh;
+      }
+    }
+
+    @media (max-height: 850px) {
+      textarea#wps {
+        min-height: 90px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="side-header">
+        <div class="title-row">
+          <div class="brand">
+            <div class="brand-badge">P</div>
+            <div style="min-width:0;">
+              <h1>Pathfinder Mission Console</h1>
+              <div class="sub">ROS 2 + Nav2 Web Operator Panel</div>
+            </div>
+          </div>
+
+          <div class="conn-pill" id="connPill" title="WebSocket status">
+            <span class="dot" id="connDot"></span>
+            <span id="connText">Connecting…</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-body">
+        <!-- Emergency Stop -->
+        <div class="card">
+          <div class="card-h">
+            <span>Emergency Control</span>
+            <span class="mono" id="missionStateMini">STATE: -</span>
+          </div>
+          <div class="card-b">
+            <button class="btn-stop" id="stopBtn">🛑 STOP</button>
+            <div class="hint" style="margin-top:10px;">
+              Sends <code>cmd_vel = 0</code> immediately. Use this as a safety stop.
+            </div>
+          </div>
+        </div>
+
+        <!-- Telemetry -->
+        <div class="card">
+          <div class="card-h">
+            <span>Live Telemetry</span>
+            <span class="mono" id="telemetryAge">age: -</span>
+          </div>
+          <div class="card-b">
+            <div class="grid2">
+              <div class="metric">
+                <div class="k">Latitude</div>
+                <div class="v"><span id="lat">-</span></div>
+              </div>
+              <div class="metric">
+                <div class="k">Longitude</div>
+                <div class="v"><span id="lon">-</span></div>
+              </div>
+              <div class="metric">
+                <div class="k">vx</div>
+                <div class="v"><span id="vx">-</span><span class="u">m/s</span></div>
+              </div>
+              <div class="metric">
+                <div class="k">GPS</div>
+                <div class="v"><span id="gpsStatus">-</span></div>
+              </div>
+            </div>
+
+            <div class="btn-row" style="margin-top:10px; align-items: center;">
+              <button class="btn-primary" id="centerBtn" style="flex:1;">Center</button>
+              <button class="btn-ghost" id="clearTraceBtn" style="flex:1;">Clear</button>
+
+              <label class="check-btn-wrapper" title="Kamera sürekli robotu ortalar">
+                <input type="checkbox" id="autoCenterCheck" checked> <span class="custom-box"></span>
+                <span class="check-label">Auto Follow</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode Toggle -->
+        <div class="card">
+          <div class="card-h"><span>Control Mode</span></div>
+          <div class="card-b">
+            <div class="mode-toggle">
+              <button class="mode-btn active" id="btnAutonom" onclick="setControlMode('autonom')">🤖 Autonomous</button>
+              <button class="mode-btn" id="btnManual" onclick="setControlMode('manual')">🎮 Manual</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Waypoints (collapsible, scrollable body) — shown in Autonom mode -->
+        <div class="card collapsible" id="wpCard">
+          <div class="card-h" id="wpHeader">
+            <span>Waypoints</span>
+            <span style="display:flex; align-items:center; gap:10px;">
+              <span class="mono" id="wpCount">0</span>
+              <span class="chev">▾</span>
+            </span>
+          </div>
+          <div class="card-b scroll" id="wpBody">
+            <textarea id="wps" placeholder="Enter one waypoint per line as: lat,lon
+Example:
+41.0123000,28.9784000
+41.0130000,28.9790000"></textarea>
+
+            <div id="wpList" class="wp-list"></div>
+
+            <div class="btn-row" style="margin-top:10px;">
+              <button class="btn-primary" id="sendBtn">Send Mission</button>
+              <button id="cancelBtn">Cancel Mission</button>
+            </div>
+
+            <div class="hint" style="margin-top:10px;">
+              Tip: click on the map to append a waypoint. Drag items to reorder.
+            </div>
+          </div>
+        </div>
+
+        <!-- Manual Control Card — shown in Manual mode -->
+        <div class="card" id="manualCard" style="display:none;">
+          <div class="card-h"><span>Manual Control</span><span class="mono" id="joyOutput">lin: 0 · ang: 0</span></div>
+          <div class="card-b">
+            <div class="joy-wrap">
+              <div class="speed-inputs">
+                <div class="speed-field">
+                  <label>Linear Speed (m/s)</label>
+                  <input type="number" id="inputLinSpeed" value="0.5" min="0" max="5" step="0.1">
+                </div>
+                <div class="speed-field">
+                  <label>Angular Speed (°/s)</label>
+                  <input type="number" id="inputAngSpeed" value="30" min="0" max="180" step="1">
+                </div>
+              </div>
+              <div class="joy-base" id="joyBase">
+                <div class="joy-crosshair"></div>
+                <div class="joy-labels">
+                  <span class="jl-fwd">FWD</span>
+                  <span class="jl-bck">BWD</span>
+                  <span class="jl-lft">L</span>
+                  <span class="jl-rgt">R</span>
+                </div>
+                <div class="joy-knob" id="joyKnob"></div>
+              </div>
+              <div class="hint" style="text-align:center;">Drag the knob to drive. Release to stop.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Logs (collapsible, default collapsed) -->
+        <div class="card collapsible" id="logCard">
+          <div class="card-h" id="logHeader">
+            <span>Logs</span>
+            <span style="display:flex; align-items:center; gap:10px;">
+              <div class="btn-row" style="gap:8px;">
+                <button class="btn-ghost" id="copyLogsBtn" style="padding:8px 10px; font-size:12px;">Copy</button>
+                <button class="btn-ghost" id="clearLogsBtn" style="padding:8px 10px; font-size:12px;">Clear</button>
+              </div>
+              <span class="chev">▾</span>
+            </span>
+          </div>
+          <div class="card-b scroll" id="logBody">
+            <div class="logs" id="logs"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Map -->
+    <main class="map-wrap">
+      <div class="view-tabs">
+        <button class="view-tab active" id="tabMapBtn">🗺 Map</button>
+        <button class="view-tab" id="tabLidarBtn">📡 Lidar</button>
+      </div>
+
+      <div id="map"></div>
+      <div class="map-overlay">
+        <div class="overlay-pill">
+          <span class="dot" id="mapDot"></span>
+          <span><b id="mapConn">Link</b> <span id="mapConnText">connecting…</span></span>
+        </div>
+        <div class="overlay-pill">
+          <span>Heading</span>
+          <b id="yaw">-</b>
+          <span class="mono">deg</span>
+        </div>
+      </div>
+
+      <!-- Lidar 2B engel katmani -->
+      <div id="lidarView">
+        <canvas id="lidarCanvas"></canvas>
+        <div class="lidar-overlay">
+          <div class="overlay-pill">
+            <span class="dot" id="lidarDot"></span>
+            <span><b>Lidar</b> <span id="lidarStatus">connecting…</span></span>
+          </div>
+          <div class="overlay-pill">
+            <span>Range</span>
+            <b id="lidarRangeLabel">20</b>
+            <span class="mono">m</span>
+          </div>
+        </div>
+        <div class="lidar-zoom">
+          <button class="btn-ghost" id="lidarZoomIn" title="Yakinlas">+</button>
+          <button class="btn-ghost" id="lidarZoomOut" title="Uzaklas">−</button>
+        </div>
+        <div class="lidar-cfg" title="Sensor duzlemine gore bu degerin altindaki noktalar (zemin) atilir. Yerde test: 0.0 / Araca montaj: -(montaj yuksekligi - 0.2)">
+          <label>Zemin filtresi z-min (m)</label>
+          <input type="number" id="lidarZmin" step="0.05" value="-0.3">
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // ---------------------------
+    // Utilities
+    // ---------------------------
+    const $ = (id) => document.getElementById(id);
+
+    function ts() {
+      const d = new Date();
+      return d.toISOString().replace('T', ' ').replace('Z', '');
+    }
+
+    function log(level, msg) {
+      const logs = $("logs");
+      const line = document.createElement("div");
+      line.className = `log-line lvl-${level}`;
+      line.textContent = `[${ts()}] [${level}] ${msg}`;
+      logs.appendChild(line);
+      logs.scrollTop = logs.scrollHeight;
+    }
+
+    function setConn(state, text) {
+      const dot = $("connDot");
+      const pillText = $("connText");
+      const mapDot = $("mapDot");
+      const mapConn = $("mapConn");
+      const mapConnText = $("mapConnText");
+
+      pillText.textContent = text;
+      mapConnText.textContent = text.toLowerCase();
+
+      dot.classList.remove("ok", "bad");
+      mapDot.classList.remove("ok", "bad");
+
+      if (state === "ok") {
+        dot.classList.add("ok"); mapDot.classList.add("ok");
+        mapConn.textContent = "Online";
+      } else if (state === "bad") {
+        dot.classList.add("bad"); mapDot.classList.add("bad");
+        mapConn.textContent = "Offline";
+      } else {
+        mapConn.textContent = "Link";
+      }
+    }
+
+    function toFixedSafe(x, n) {
+      const v = Number(x);
+      if (!Number.isFinite(v)) return "-";
+      return v.toFixed(n);
+    }
+
+    async function postJSON(url, obj) {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(obj || {})
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.ok === false) {
+        throw new Error(data.error || res.statusText || "Request failed");
+      }
+      return data;
+    }
+
+    // ---------------------------
+    // Collapsible helper
+    // ---------------------------
+    function makeCollapsible(cardId, headerId, bodyId, defaultCollapsed = false, maxH = 320) {
+      const card = $(cardId);
+      const header = $(headerId);
+      const body = $(bodyId);
+      if (!card || !header || !body) return;
+
+      body.style.maxHeight = `${maxH}px`;
+
+      function toggle() {
+        card.classList.toggle("collapsed");
+      }
+
+      header.addEventListener("click", (e) => {
+        // Don't collapse when clicking buttons in header (e.g., Copy/Clear)
+        if (e.target && e.target.tagName === "BUTTON") return;
+        toggle();
+      });
+
+      if (defaultCollapsed) card.classList.add("collapsed");
+    }
+
+    // ---------------------------
+    // Map init
+    // ---------------------------
+    const map = L.map("map", {
+      zoomControl: true,
+      preferCanvas: true
+    }).setView([41.01, 28.97], 16);
+    window.addEventListener("resize", () => {
+      map.invalidateSize();
+    });
+
+    // 2. Sayfa ilk yüklendiğinde CSS Grid'in oturması için 
+    // yarım saniye bekleyip haritayı zorla güncelle (Garanti Çözüm)
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 400);
+    // Harita nesnesi oluşturulduktan sonra...
+    const mapDiv = document.getElementById("map");
+
+    // Kutunun boyutu her değiştiğinde haritayı anında güncelle
+    const resizeObserver = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
+
+    // Gözlemciyi başlat
+    resizeObserver.observe(mapDiv);
+
+    // Ek Garanti: Sayfa tamamen yüklendiğinde bir kez daha tetikle
+    window.addEventListener('load', () => {
+      setTimeout(() => map.invalidateSize(), 100);
+    });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 21,
+      maxNativeZoom: 19,
+      attribution: "&copy; OpenStreetMap"
+    }).addTo(map);
+
+    // Bigger, more visible rotating triangle marker (red fill + black border)
+    function makeArrowIcon(deg) {
+      const size = 40;
+      const half = size / 2;
+
+      // SVG triangle centered in the icon box.
+      // Black outline + red fill. Rotation around exact center => no zoom drift.
+      const html = `
+    <div style="width:${size}px;height:${size}px;display:flex;align-items:center;justify-content:center;">
+      <svg width="${size}" height="${size}" viewBox="0 0 100 100"
+           style="transform:rotate(${deg}deg); transform-origin: 50% 50%;
+                  filter: drop-shadow(0 10px 14px rgba(0,0,0,0.65));">
+        <!-- outer (black) -->
+        <polygon points="50,8 92,92 8,92" fill="#000000"></polygon>
+        <!-- inner (red) slightly inset for border effect -->
+        <polygon points="50,14 87,90 13,90" fill="#ef4444"></polygon>
+      </svg>
+    </div>`;
+
+      // Center of icon sits exactly on the LatLng point
+      return L.divIcon({
+        html,
+        className: "",
+        iconSize: [size, size],
+        iconAnchor: [half, half]
+      });
+    }
+
+
+    let robot = { lat: 41.01, lon: 28.97, yaw_deg: 0 };
+    const robotMarker = L.marker([robot.lat, robot.lon], { icon: makeArrowIcon(0) }).addTo(map);
+
+    // Trace line
+    let trace = [];
+    const traceLine = L.polyline([], { weight: 3, opacity: 0.85 }).addTo(map);
+
+    // Nav2 Plan Path (Red Line)
+    const navPathLine = L.polyline([], { weight: 4, color: '#ef4444', opacity: 0.8, dashArray: '10, 6' }).addTo(map);
+
+    // Waypoints layer
+    const wpLayer = L.layerGroup().addTo(map);
+
+    // ---------------------------
+    // Waypoints: parse, render map markers, render drag list
+    // ---------------------------
+    function parseWaypoints(text) {
+      const lines = text.split("\n").map(s => s.trim()).filter(Boolean);
+      const wps = [];
+      for (const ln of lines) {
+        const parts = ln.split(",").map(x => x.trim());
+        if (parts.length !== 2) continue;
+        const lat = Number(parts[0]);
+        const lon = Number(parts[1]);
+        if (Number.isFinite(lat) && Number.isFinite(lon)) wps.push({ lat, lon });
+      }
+      return wps;
+    }
+
+    function setTextareaFromWaypoints(wps) {
+      $("wps").value = wps.map(w => `${w.lat.toFixed(7)},${w.lon.toFixed(7)}`).join("\n");
+    }
+
+    function renderWaypointsOnMap() {
+      wpLayer.clearLayers();
+      const wps = parseWaypoints($("wps").value);
+      $("wpCount").textContent = `${wps.length}`;
+
+      wps.forEach((wp, idx) => {
+        const m = L.circleMarker([wp.lat, wp.lon], {
+          radius: 6,
+          weight: 2,
+          opacity: 0.9,
+          fillOpacity: 0.45
+        });
+        m.bindTooltip(`#${idx}`, { direction: "top", offset: [0, -6] });
+        m.addTo(wpLayer);
+      });
+    }
+
+    let dragFromIndex = null;
+
+    function renderWaypointList() {
+      const list = $("wpList");
+      list.innerHTML = "";
+
+      const wps = parseWaypoints($("wps").value);
+      $("wpCount").textContent = `${wps.length}`;
+
+      wps.forEach((wp, idx) => {
+        const item = document.createElement("div");
+        item.className = "wp-item";
+        item.draggable = true;
+        item.dataset.index = String(idx);
+
+        const handle = document.createElement("div");
+        handle.className = "wp-handle";
+        handle.textContent = "⋮⋮";
+
+        const text = document.createElement("div");
+        text.className = "wp-text";
+        text.textContent = `${idx}: ${wp.lat.toFixed(7)}, ${wp.lon.toFixed(7)}`;
+
+        const badge = document.createElement("div");
+        badge.className = "wp-badge";
+        badge.textContent = "drag";
+
+        const del = document.createElement("button");
+        del.className = "wp-del";
+        del.textContent = "Delete";
+        del.onclick = (e) => {
+          e.stopPropagation();
+          const cur = parseWaypoints($("wps").value);
+          cur.splice(idx, 1);
+          setTextareaFromWaypoints(cur);
+          renderWaypointsOnMap();
+          renderWaypointList();
+          log("W", `Deleted waypoint #${idx}.`);
+        };
+
+        item.appendChild(handle);
+        item.appendChild(text);
+        item.appendChild(badge);
+        item.appendChild(del);
+
+        item.addEventListener("dragstart", (e) => {
+          dragFromIndex = idx;
+          e.dataTransfer.effectAllowed = "move";
+          item.classList.add("wp-drop");
+        });
+
+        item.addEventListener("dragend", () => {
+          item.classList.remove("wp-drop");
+        });
+
+        item.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "move";
+          item.classList.add("wp-drop");
+
+          // auto-scroll within list
+          const rect = list.getBoundingClientRect();
+          const y = e.clientY;
+          const edge = 40;
+          if (y < rect.top + edge) list.scrollTop -= 12;
+          if (y > rect.bottom - edge) list.scrollTop += 12;
+        });
+
+        item.addEventListener("dragleave", () => {
+          item.classList.remove("wp-drop");
+        });
+
+        item.addEventListener("drop", (e) => {
+          e.preventDefault();
+          item.classList.remove("wp-drop");
+
+          const toIndex = idx;
+          const fromIndex = dragFromIndex;
+
+          if (fromIndex === null || fromIndex === toIndex) return;
+
+          const arr = parseWaypoints($("wps").value);
+          const [moved] = arr.splice(fromIndex, 1);
+          arr.splice(toIndex, 0, moved);
+
+          setTextareaFromWaypoints(arr);
+          renderWaypointsOnMap();
+          renderWaypointList();
+          log("I", `Reordered waypoints: moved #${fromIndex} → #${toIndex}.`);
+
+          dragFromIndex = null;
+        });
+
+        list.appendChild(item);
+      });
+    }
+
+    // Map click to append waypoint
+    map.on("click", (e) => {
+      const { lat, lng } = e.latlng;
+      const ta = $("wps");
+      const line = `${lat.toFixed(7)},${lng.toFixed(7)}`;
+      ta.value = ta.value.trim() ? (ta.value.trim() + "\n" + line) : line;
+      renderWaypointsOnMap();
+      renderWaypointList();
+
+      // Auto-scroll the waypoint list to show the newly added item
+      const wpListEl = $("wpList");
+      if (wpListEl) {
+        // ensure layout updated then scroll
+        requestAnimationFrame(() => { wpListEl.scrollTop = wpListEl.scrollHeight; });
+      }
+
+      log("I", `Added waypoint: ${line}`);
+    });
+    // Opsiyonel: Kullanıcı haritayı eliyle kaydırırsa takibi bırak
+    map.on('dragstart', () => {
+      const cb = $("autoCenterCheck");
+      if (cb && cb.checked) {
+        cb.checked = false;
+      }
+    });
+    $("wps").addEventListener("input", () => {
+      renderWaypointsOnMap();
+      renderWaypointList();
+    });
+
+    // ---------------------------
+    // Telemetry rendering
+    // ---------------------------
+    let lastTelemetryMs = 0;
+
+    function applyTelemetry(msg) {
+      lastTelemetryMs = Date.now();
+
+      const lat = Number(msg.lat);
+      const lon = Number(msg.lon);
+      const yaw = Number(msg.yaw_deg);
+
+      if (Number.isFinite(lat) && Number.isFinite(lon)) {
+        robot.lat = lat; robot.lon = lon;
+        robotMarker.setLatLng([robot.lat, robot.lon]);
+        $("lat").textContent = toFixedSafe(robot.lat, 7);
+        $("lon").textContent = toFixedSafe(robot.lon, 7);
+      }
+
+      if (Number.isFinite(yaw)) {
+        robot.yaw_deg = ((yaw % 360) + 360) % 360;
+        robotMarker.setIcon(makeArrowIcon(robot.yaw_deg));
+        $("yaw").textContent = toFixedSafe(robot.yaw_deg, 1);
+      }
+
+      $("vx").textContent = toFixedSafe(msg.vx ?? 0, 3);
+
+      // Show GPS status (replaces previous vyaw metric)
+      try {
+        const gs = msg.gps_status ?? null;
+        if (gs && typeof gs === 'object') {
+          $("gpsStatus").textContent = gs.str ?? (gs.code != null ? `code:${gs.code}` : '-');
+        } else if (typeof msg.gps_status === 'number') {
+          $("gpsStatus").textContent = String(msg.gps_status);
+        } else {
+          $("gpsStatus").textContent = '-';
+        }
+      } catch (e) {
+        $("gpsStatus").textContent = '-';
+      }
+
+      const st = msg.mission_state ?? "-";
+      $("missionStateMini").textContent = `STATE: ${st}`;
+
+      // Update Stop/Resume button text and style to reflect stopped state
+      try {
+        const stopBtn = $("stopBtn");
+        if (st === "STOPPED") {
+          stopBtn.textContent = "▶ Resume";
+          stopBtn.classList.remove("btn-stop");
+          stopBtn.classList.add("btn-resume");
+        } else {
+          stopBtn.textContent = "🛑 STOP";
+          stopBtn.classList.remove("btn-resume");
+          stopBtn.classList.add("btn-stop");
+        }
+      } catch (e) { }
+
+      // Trace handling: backend tam izi tutar (mesafe filtreli).
+      // Kirpma YOK - iz sadece Clear butonu ile silinir.
+      if (Array.isArray(msg.trace)) {
+        trace = msg.trace;
+      } else if (Number.isFinite(robot.lat) && Number.isFinite(robot.lon)) {
+        trace.push({ lat: robot.lat, lon: robot.lon });
+      }
+      traceLine.setLatLngs(trace.map(p => [p.lat, p.lon]));
+
+      // Update Nav2 Path
+      if (Array.isArray(msg.path)) {
+        navPathLine.setLatLngs(msg.path.map(p => [p.lat, p.lon]));
+      }
+
+      // --- YENİ EKLENEN KISIM: AUTO FOLLOW MANTIĞI ---
+      const autoCb = $("autoCenterCheck");
+      // Checkbox seçiliyse VE robot koordinatları geçerliyse
+      if (autoCb && autoCb.checked && Number.isFinite(robot.lat) && Number.isFinite(robot.lon)) {
+        // Haritayı yumuşakça kaydır (Pan)
+        map.panTo([robot.lat, robot.lon], { animate: true, duration: 0.5 });
+      }
+
+    }
+
+
+    function updateTelemetryAge() {
+      if (!lastTelemetryMs) { $("telemetryAge").textContent = "age: -"; return; }
+      const age = (Date.now() - lastTelemetryMs) / 1000;
+      $("telemetryAge").textContent = `age: ${age.toFixed(1)}s`;
+    }
+    setInterval(updateTelemetryAge, 250);
+
+    // ---------------------------
+    // Controls
+    // ---------------------------
+    $("centerBtn").onclick = () => {
+      map.setView([robot.lat, robot.lon], Math.max(map.getZoom(), 17));
+      log("I", "Centered map on robot.");
+    };
+
+    $("clearTraceBtn").onclick = async () => {
+      try {
+        trace = [];
+        traceLine.setLatLngs([]);
+        await postJSON("/api/clear_trace", {});
+        log("W", "Cleared trace on backend.");
+      } catch (e) {
+        log("E", `Failed to clear trace: ${e.message}`);
+      }
+    };
+
+    $("sendBtn").onclick = async () => {
+      try {
+        const wps = parseWaypoints($("wps").value);
+        if (!wps.length) return alert("No waypoints.");
+        log("I", `Sending mission with ${wps.length} waypoint(s)…`);
+        await postJSON("/api/mission", { waypoints: wps });
+        log("I", "Mission sent successfully.");
+      } catch (e) {
+        log("E", `Mission send failed: ${e.message}`);
+        alert("Mission send failed: " + e.message);
+      }
+    };
+
+    $("cancelBtn").onclick = async () => {
+      try {
+        log("W", "Sending cancel request…");
+        await postJSON("/api/cancel", {});
+        log("I", "Cancel request sent.");
+      } catch (e) {
+        log("E", `Cancel failed: ${e.message}`);
+        alert("Cancel failed: " + e.message);
+      }
+    };
+
+    $("stopBtn").onclick = async () => {
+      try {
+        // toggle stop/resume
+        log("S", "Stop/Resume pressed. Sending request…");
+        const res = await postJSON("/api/stop", {});
+        if (res && res.state === "stopped") {
+          log("S", "EMERGENCY STOP engaged (publishing zeros).");
+          $("stopBtn").textContent = "▶ Resume";
+          $("stopBtn").classList.remove("btn-stop");
+          $("stopBtn").classList.add("btn-resume");
+        } else if (res && res.state === "resumed") {
+          log("I", "Resumed from emergency stop.");
+          $("stopBtn").textContent = "🛑 STOP";
+          $("stopBtn").classList.remove("btn-resume");
+          $("stopBtn").classList.add("btn-stop");
+        } else {
+          log("I", "Stop toggle acknowledged.");
+        }
+      } catch (e) {
+        log("E", `STOP failed: ${e.message}`);
+        alert("STOP failed: " + e.message);
+      }
+    };
+
+    $("clearLogsBtn").onclick = () => {
+      $("logs").innerHTML = "";
+      log("I", "Logs cleared.");
+    };
+
+    $("copyLogsBtn").onclick = async () => {
+      try {
+        const text = Array.from($("logs").querySelectorAll(".log-line")).map(x => x.textContent).join("\n");
+        await navigator.clipboard.writeText(text);
+        log("I", "Logs copied to clipboard.");
+      } catch (e) {
+        log("E", "Clipboard copy failed (browser permissions).");
+        alert("Copy failed: browser permissions.");
+      }
+    };
+
+    // ---------------------------
+    // WebSocket (auto-reconnect)
+    // ---------------------------
+    let ws = null;
+    let reconnectTimer = null;
+
+    function connectWS() {
+      if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+      setConn("warn", "Connecting…");
+
+      const wsUrl = `ws://${location.host}/ws`;
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        setConn("ok", "Connected");
+        log("I", `WebSocket connected (${wsUrl}).`);
+      };
+
+      ws.onclose = () => {
+        setConn("bad", "Disconnected");
+        log("W", "WebSocket disconnected. Reconnecting…");
+        reconnectTimer = setTimeout(connectWS, 1000);
+      };
+
+      ws.onerror = () => {
+        setConn("bad", "Error");
+        // onclose will handle retry
+      };
+
+      ws.onmessage = (ev) => {
+        try {
+          const msg = JSON.parse(ev.data);
+          applyTelemetry(msg);
+        } catch { }
+      };
+    }
+
+    // ---------------------------
+    // Mode toggle: Manual ↔ Autonom
+    // ---------------------------
+    let controlMode = 'autonom';
+
+    function setControlMode(mode) {
+      controlMode = mode;
+      const isManual = mode === 'manual';
+      $("wpCard").style.display = isManual ? 'none' : '';
+      $("manualCard").style.display = isManual ? '' : 'none';
+      $("btnAutonom").classList.toggle('active', !isManual);
+      $("btnManual").classList.toggle('active', isManual);
+      log('I', `Control mode → ${mode.toUpperCase()}`);
+    }
+    // expose for inline onclick
+    window.setControlMode = setControlMode;
+
+    // ---------------------------
+    // Joystick logic
+    // ---------------------------
+    (function initJoystick() {
+      const base = $("joyBase");
+      const knob = $("joyKnob");
+      if (!base || !knob) return;
+
+      const knobR = 25;  // knob radius in px
+      let dragging = false;
+      let sendTimer = null;
+      let curLin = 0, curAng = 0;
+
+      function getBaseRect() { return base.getBoundingClientRect(); }
+
+      function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+      function updateKnobPos(clientX, clientY) {
+        const r = getBaseRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
+        const maxR = r.width / 2 - knobR;
+
+        let dx = clientX - cx;
+        let dy = clientY - cy;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist > maxR) {
+          dx = dx / dist * maxR;
+          dy = dy / dist * maxR;
+        }
+
+        knob.style.left = `calc(50% + ${dx}px)`;
+        knob.style.top = `calc(50% + ${dy}px)`;
+
+        // Normalized -1..1  (Y inverted: up = positive forward)
+        const nx = dx / maxR;
+        const ny = -dy / maxR;
+
+        const linSpeed = parseFloat($("inputLinSpeed").value) || 0.5;
+        const angSpeed = parseFloat($("inputAngSpeed").value) || 30;
+
+        curLin = +(ny * linSpeed).toFixed(3);
+        curAng = +(-nx * angSpeed).toFixed(2);  // left stick = positive angular
+
+        $("joyOutput").textContent = `lin: ${curLin} · ang: ${curAng}`;
+      }
+
+      function sendCmd() {
+        postJSON('/api/cmd_vel_joy', { linear: curLin, angular: curAng }).catch(() => { });
+      }
+
+      function startDrag(e) {
+        e.preventDefault();
+        dragging = true;
+        knob.classList.add('active');
+        const pt = e.touches ? e.touches[0] : e;
+        updateKnobPos(pt.clientX, pt.clientY);
+        sendCmd();
+        if (!sendTimer) sendTimer = setInterval(sendCmd, 100);  // 10 Hz
+      }
+
+      function moveDrag(e) {
+        if (!dragging) return;
+        e.preventDefault();
+        const pt = e.touches ? e.touches[0] : e;
+        updateKnobPos(pt.clientX, pt.clientY);
+      }
+
+      function stopDrag() {
+        if (!dragging) return;
+        dragging = false;
+        knob.classList.remove('active');
+        knob.style.left = '50%';
+        knob.style.top = '50%';
+        curLin = 0; curAng = 0;
+        $("joyOutput").textContent = 'lin: 0 · ang: 0';
+        if (sendTimer) { clearInterval(sendTimer); sendTimer = null; }
+        // send zero
+        postJSON('/api/cmd_vel_joy', { linear: 0, angular: 0 }).catch(() => { });
+      }
+
+      // Mouse
+      knob.addEventListener('mousedown', startDrag);
+      window.addEventListener('mousemove', moveDrag);
+      window.addEventListener('mouseup', stopDrag);
+
+      // Touch
+      knob.addEventListener('touchstart', startDrag, { passive: false });
+      window.addEventListener('touchmove', moveDrag, { passive: false });
+      window.addEventListener('touchend', stopDrag);
+    })();
+
+    // ---------------------------
+    // Lidar tab: 2B engel katmani (kusbakisi radar)
+    // ---------------------------
+    (function initLidarView() {
+      const view = $("lidarView");
+      const canvas = $("lidarCanvas");
+      const ctx = canvas.getContext("2d");
+
+      let lidarWs = null;
+      let lidarReconnect = null;
+      let active = false;              // Lidar sekmesi acik mi
+      let viewRange = 20;              // ekranda gosterilen yaricap (m)
+      let scan = null;                 // son gelen ranges dizisi
+      let scanMeta = { bins: 360, age_s: null };
+      let zminSynced = false;          // z_min kutusu backend'le senkronlandi mi
+      // Hesai XT16 bulutunda "on" -y ekseninde cikiyor; ekranda one=yukari
+      // getirmek icin +90 derece. Araca montaj yonu degisirse bunu ayarla.
+      const ROT_OFFSET = Math.PI / 2;
+
+      function setLidarStatus(state, text) {
+        const dot = $("lidarDot");
+        dot.classList.remove("ok", "bad");
+        if (state === "ok") dot.classList.add("ok");
+        if (state === "bad") dot.classList.add("bad");
+        $("lidarStatus").textContent = text;
+      }
+
+      function resizeCanvas() {
+        const r = view.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(r.width * dpr);
+        canvas.height = Math.round(r.height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        draw();
+      }
+
+      function draw() {
+        const w = canvas.clientWidth, h = canvas.clientHeight;
+        if (!w || !h) return;
+        ctx.clearRect(0, 0, w, h);
+
+        const cx = w / 2, cy = h / 2;
+        const scale = (Math.min(w, h) / 2 - 30) / viewRange;  // px / m
+
+        // Menzil halkalari (5m adim)
+        ctx.strokeStyle = "rgba(96,165,250,0.14)";
+        ctx.fillStyle = "rgba(154,167,178,0.55)";
+        ctx.font = "11px ui-monospace, Menlo, monospace";
+        ctx.lineWidth = 1;
+        for (let rm = 5; rm <= viewRange; rm += 5) {
+          ctx.beginPath();
+          ctx.arc(cx, cy, rm * scale, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.fillText(`${rm}m`, cx + 4, cy - rm * scale - 4);
+        }
+
+        // Eksen cizgileri
+        ctx.strokeStyle = "rgba(96,165,250,0.10)";
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - viewRange * scale); ctx.lineTo(cx, cy + viewRange * scale);
+        ctx.moveTo(cx - viewRange * scale, cy); ctx.lineTo(cx + viewRange * scale, cy);
+        ctx.stroke();
+
+        // Engel noktalari: bin acisi = -pi + (i+0.5)*2pi/N (ROS: x ileri, y sol)
+        // Ekran: ileri = yukari, sol = ekran solu
+        if (scan && scan.length) {
+          const nb = scan.length;
+          for (let i = 0; i < nb; i++) {
+            const r = scan[i];
+            if (!r || r > viewRange) continue;
+            const th = -Math.PI + (i + 0.5) * 2 * Math.PI / nb + ROT_OFFSET;
+            const xr = r * Math.cos(th);   // ileri
+            const yr = r * Math.sin(th);   // sol
+            const px = cx - yr * scale;
+            const py = cy - xr * scale;
+
+            // Yakinlik rengi: <2m kirmizi, <5m turuncu, uzak cyan
+            let col = "rgba(34,211,238,0.9)";
+            if (r < 2) col = "rgba(239,68,68,0.95)";
+            else if (r < 5) col = "rgba(245,158,11,0.95)";
+
+            ctx.fillStyle = col;
+            ctx.beginPath();
+            ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        // Arac (merkez ucgen, FWD = yukari)
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.fillStyle = "#ef4444";
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, -12); ctx.lineTo(9, 10); ctx.lineTo(-9, 10);
+        ctx.closePath();
+        ctx.fill(); ctx.stroke();
+        ctx.restore();
+
+        // Veri yoksa uyari
+        if (!scan) {
+          ctx.fillStyle = "rgba(230,237,243,0.5)";
+          ctx.font = "700 15px ui-sans-serif, system-ui";
+          ctx.textAlign = "center";
+          ctx.fillText("Lidar verisi bekleniyor…", cx, cy - viewRange * scale * 0.5);
+          ctx.textAlign = "left";
+        }
+      }
+
+      function connectLidarWS() {
+        if (lidarReconnect) { clearTimeout(lidarReconnect); lidarReconnect = null; }
+        setLidarStatus("warn", "connecting…");
+        lidarWs = new WebSocket(`ws://${location.host}/ws_lidar`);
+
+        lidarWs.onopen = () => setLidarStatus("ok", "streaming");
+        lidarWs.onclose = () => {
+          lidarWs = null;
+          if (active) {
+            setLidarStatus("bad", "disconnected");
+            lidarReconnect = setTimeout(connectLidarWS, 1000);
+          }
+        };
+        lidarWs.onmessage = (ev) => {
+          try {
+            const msg = JSON.parse(ev.data);
+            scan = msg.ranges;
+            scanMeta = msg;
+            // Ilk mesajda z_min kutusunu backend'in guncel degeriyle senkronla
+            if (!zminSynced && msg.z_min != null) {
+              $("lidarZmin").value = msg.z_min;
+              zminSynced = true;
+            }
+            if (msg.age_s == null) setLidarStatus("warn", "topic bekleniyor…");
+            else if (msg.age_s > 2) setLidarStatus("bad", `stale (${msg.age_s}s)`);
+            else setLidarStatus("ok", "streaming");
+            draw();
+          } catch { }
+        };
+      }
+
+      function disconnectLidarWS() {
+        if (lidarReconnect) { clearTimeout(lidarReconnect); lidarReconnect = null; }
+        if (lidarWs) { try { lidarWs.close(); } catch { } lidarWs = null; }
+        scan = null;
+      }
+
+      function setRange(r) {
+        viewRange = Math.max(5, Math.min(40, r));
+        $("lidarRangeLabel").textContent = `${viewRange}`;
+        draw();
+      }
+
+      $("lidarZoomIn").onclick = () => setRange(viewRange - 5);
+      $("lidarZoomOut").onclick = () => setRange(viewRange + 5);
+
+      $("lidarZmin").addEventListener("change", () => {
+        const v = parseFloat($("lidarZmin").value);
+        if (!Number.isFinite(v)) return;
+        if (lidarWs && lidarWs.readyState === WebSocket.OPEN) {
+          lidarWs.send(JSON.stringify({ z_min: v }));
+          log("I", `Lidar zemin filtresi z_min → ${v} m`);
+        }
+      });
+      view.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        setRange(viewRange + (e.deltaY > 0 ? 5 : -5));
+      }, { passive: false });
+
+      new ResizeObserver(resizeCanvas).observe(view);
+
+      // Sekme gecisi
+      window.setViewTab = function (tab) {
+        const isLidar = tab === "lidar";
+        active = isLidar;
+        view.style.display = isLidar ? "block" : "none";
+        $("tabMapBtn").classList.toggle("active", !isLidar);
+        $("tabLidarBtn").classList.toggle("active", isLidar);
+        if (isLidar) {
+          resizeCanvas();
+          connectLidarWS();
+          log("I", "Lidar view opened (2D obstacle layer).");
+        } else {
+          disconnectLidarWS();
+          map.invalidateSize();
+          log("I", "Map view opened.");
+        }
+      };
+
+      $("tabMapBtn").onclick = () => window.setViewTab("map");
+      $("tabLidarBtn").onclick = () => window.setViewTab("lidar");
+    })();
+
+    // ---------------------------
+    // Init
+    // ---------------------------
+    makeCollapsible("wpCard", "wpHeader", "wpBody", false, 380);
+    makeCollapsible("logCard", "logHeader", "logBody", true, 260);
+
+    renderWaypointsOnMap();
+    renderWaypointList();
+
+    log("I", "UI loaded.");
+    connectWS();
+  </script>
+</body>
+
+</html>
