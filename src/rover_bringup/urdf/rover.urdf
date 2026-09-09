@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+<robot name="rover_bot">
+
+  <material name="blue">
+    <color rgba="0 0 0.8 1"/>
+  </material>
+  
+  <material name="black">
+    <color rgba="0 0 0 1"/>
+  </material>
+
+  <material name="red">
+    <color rgba="1 0 0 1"/>
+  </material>
+
+  <!-- Base Link: Geometric Center of the Chassis -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <!-- Chassis Box: 50cm x 40cm x 17cm -->
+        <box size="0.5 0.4 0.17"/>
+      </geometry>
+      <material name="blue"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+  <link name="base_footprint"/>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="base_footprint"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- gps_link -->
+  <!-- Previous config: Relative to Geometric Center: +0.39m -->
+  <link name="gps_link">
+    <visual>
+      <geometry>
+        <box size="0.05 0.05 0.02"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <joint name="gps_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="gps_link"/>
+    <origin xyz="0.39 0 0.1" rpy="0 0 0"/>
+  </joint>
+
+  <!-- imu_link -->
+  <!-- 10cm inside from front. Front is at +0.25 (since length is 0.5).
+       Position: 0.25 - 0.10 = 0.15 -->
+  <link name="imu_link">
+    <visual>
+      <geometry>
+        <box size="0.05 0.05 0.02"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+    <origin xyz="0.15 0 0.1" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Front Left Wheel -->
+  <link name="front_left_wheel">
+    <visual>
+      <geometry>
+        <cylinder radius="0.096" length="0.07"/>
+      </geometry>
+      <material name="black"/>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+    </visual>
+  </link>
+
+  <joint name="front_left_wheel_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="front_left_wheel"/>
+    <origin xyz="0.15 0.235 -0.035" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <!-- Front Right Wheel -->
+  <link name="front_right_wheel">
+    <visual>
+      <geometry>
+        <cylinder radius="0.096" length="0.07"/>
+      </geometry>
+      <material name="black"/>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+    </visual>
+  </link>
+
+  <joint name="front_right_wheel_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="front_right_wheel"/>
+    <origin xyz="0.15 -0.235 -0.035" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <!-- Rear Left Wheel -->
+  <link name="rear_left_wheel">
+    <visual>
+      <geometry>
+        <cylinder radius="0.096" length="0.07"/>
+      </geometry>
+      <material name="black"/>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+    </visual>
+  </link>
+
+  <joint name="rear_left_wheel_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="rear_left_wheel"/>
+    <origin xyz="-0.15 0.235 -0.035" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <!-- Rear Right Wheel -->
+  <link name="rear_right_wheel">
+    <visual>
+      <geometry>
+        <cylinder radius="0.096" length="0.07"/>
+      </geometry>
+      <material name="black"/>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+    </visual>
+  </link>
+
+  <joint name="rear_right_wheel_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="rear_right_wheel"/>
+    <origin xyz="-0.15 -0.235 -0.035" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+</robot>

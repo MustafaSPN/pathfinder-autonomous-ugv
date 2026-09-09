@@ -1,0 +1,93 @@
+ekf_filter_node_map:
+  ros__parameters:
+    # --- GENEL AYARLAR ---
+    frequency: 30.0               # Çıktı hızı yüksek olmalı (TF için)
+    sensor_timeout: 0.25          # 5Hz GPS için güvenli sınır
+    two_d_mode: true
+
+    transform_time_offset: 0.0
+    transform_timeout: 0.1
+
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: map              # Global filtre dünyayı "map" kabul eder
+
+    publish_tf: true              # map -> odom TF'ini bu basar!
+    publish_acceleration: false
+    print_diagnostics: true
+
+    # ======================================================
+    # 1) ODOM (ESP32 - Tekerlek Hızı - 12 Hz)
+    #    Not: Local filtrenin çıktısını kullanmak yerine 
+    #    HAM veriyi kullanmak (Best Practice) daha iyidir.
+    # ======================================================
+    odom0: /odom_esp
+    odom0_queue_size: 2
+    odom0_nodelay: false
+
+    # Sadece Vx (İleri Hız)
+    odom0_config: [false, false, false,
+                   false, false, false,
+                   true,  true, false,
+                   false, false, false, # Vyaw'ı buradan kapattık, IMU'dan alacağız
+                   false, false, false]
+    
+    odom0_differential: false
+    odom0_relative: true
+
+    # ======================================================
+    # 2) IMU (BNO055 - Jiroskop - 27 Hz) [YENİ EKLENDİ]
+    #    Amaç: 5Hz GPS gelene kadar dönüşleri akıcı tutmak.
+    # ======================================================
+    imu0: /bno055/imu
+    imu0_queue_size: 5
+    imu0_nodelay: true
+
+    # Sadece Vyaw (Dönüş Hızı)
+    imu0_config: [false, false, false,
+                  false, false, false,
+                  false, false, false,
+                  false, false, true,  # Gyro verisi
+                  false, false, false] # İstersen ax (ivme) buraya da eklenebilir
+
+    imu0_differential: false 
+    imu0_relative: true
+    imu0_remove_gravitational_acceleration: false
+    # ======================================================
+    # 3) GPS POZİSYONU (Navsat Transform Çıktısı - 5 Hz)
+    #    HATA DÜZELTİLDİ: "gps0" yerine "odom1" yapıldı.
+    # ======================================================
+    gps0: /odometry/gps
+    gps0_queue_size: 2
+    gps0_nodelay: false # 5Hz yavaş olduğu için delay olabilir
+
+    # Sadece X ve Y (Konum)
+    gps0_config: [true,  true,  false,
+                   false, false, false,
+                   false, false, false,
+                   false, false, false,
+                   false, false, false]
+
+    gps0_differential: false
+    gps0_relative: false
+
+    # ======================================================
+    # 4) GPS HEADING (Dual Antenna - Mutlak Yön - 5 Hz)
+    #    Buradan robotun pusula yönünü alıyoruz.
+    # ======================================================
+    imu1: /gps/imu
+    imu1_queue_size: 2
+    imu1_nodelay: false
+
+    # Sadece Yaw (Mutlak Yön)
+    imu1_config: [false, false, false,
+                  false, false, true,
+                  false, false, false,
+                  false, false, false,
+                  false, false, false]
+
+    imu1_differential: false
+    imu1_relative: false      # FALSE OLMALI! (Harita Kuzeyi ile hizalanacak)
+    
+    use_control: false
