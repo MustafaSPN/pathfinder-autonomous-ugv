@@ -1,0 +1,12 @@
+build/
+install/
+log/
+.vscode/
+.DS_Store
+*.pyc
+get-docker.sh
+
+# local NTRIP credentials - never commit
+ntrip.env
+*.env
+!*.env.example

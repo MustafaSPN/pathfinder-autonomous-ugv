@@ -1,0 +1,5945 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "notes": "Unified schema for BYNAV non-NMEA logs (ASCII + Binary variants).",
+    "updated": "2025-11-13",
+    "type_guides": {
+      "uint8": "Unsigned 8-bit integer",
+      "int8": "Signed 8-bit integer",
+      "uint16": "Unsigned 16-bit integer",
+      "int16": "Signed 16-bit integer",
+      "uint32": "Unsigned 32-bit integer",
+      "int32": "Signed 32-bit integer",
+      "ulong": "Unsigned 32-bit integer (alias for uint32)",
+      "long": "Signed 32-bit integer (alias for int32)",
+      "uint64": "Unsigned 64-bit integer",
+      "int64": "Signed 64-bit integer",
+      "float32": "32-bit floating point (IEEE single)",
+      "float64": "64-bit floating point (IEEE double)",
+      "double": "Alias for float64",
+      "char": "Fixed-length byte string (length specified per field)",
+      "bytes": "Raw byte array (length specified per field)",
+      "scale": "Optional multiplier applied after numeric conversion",
+      "source: crc": "Field displays frame CRC; payload_length excludes it"
+    }
+  },
+  "BESTPOS": {
+    "label": "Best Position",
+    "description": "Outputs best position solution (no INS).",
+    "ascii": {
+      "tag": "BESTPOSA",
+      "name": "Best Position (ASCII)",
+      "description": "Best position (ASCII)",
+      "log_command": "bestposa",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#BESTPOSA",
+        "BESTPOSA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "solution_status",
+          "type": "str",
+          "note": "Solution status; see Table 4-1 Solution Status.",
+          "note_table": "table_4_1_solution_status"
+        },
+        {
+          "index": 2,
+          "name": "position_type",
+          "type": "str",
+          "note": "Position type; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "index": 3,
+          "name": "latitude_deg",
+          "type": "float",
+          "unit": "deg"
+        },
+        {
+          "index": 4,
+          "name": "longitude_deg",
+          "type": "float",
+          "unit": "deg"
+        },
+        {
+          "index": 5,
+          "name": "height_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Height above mean sea level."
+        },
+        {
+          "index": 6,
+          "name": "undulation_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Geoid-ellipsoid separation (undulation)."
+        },
+        {
+          "index": 7,
+          "name": "datum_id",
+          "type": "str",
+          "note": "Datum identifier for the solution."
+        },
+        {
+          "index": 8,
+          "name": "latitude_sigma_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Latitude 1-sigma standard deviation."
+        },
+        {
+          "index": 9,
+          "name": "longitude_sigma_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Longitude 1-sigma standard deviation."
+        },
+        {
+          "index": 10,
+          "name": "height_sigma_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Height 1-sigma standard deviation."
+        },
+        {
+          "index": 11,
+          "name": "base_station_id",
+          "type": "str",
+          "note": "Base station ID (0 when single-point positioning)."
+        },
+        {
+          "index": 12,
+          "name": "diff_age_s",
+          "type": "float",
+          "unit": "s",
+          "note": "Differential age."
+        },
+        {
+          "index": 13,
+          "name": "sol_age_s",
+          "type": "float",
+          "unit": "s",
+          "note": "Solution age."
+        },
+        {
+          "index": 14,
+          "name": "num_sv_tracked",
+          "type": "int",
+          "note": "#SVs = Number of satellites tracked."
+        },
+        {
+          "index": 15,
+          "name": "num_sv_used",
+          "type": "int",
+          "note": "#solnSVs = Number of satellites used in solution."
+        },
+        {
+          "index": 16,
+          "name": "num_sv_l1",
+          "type": "int",
+          "note": "#solnL1SVs = Number of satellites with L1/E1/B1 signals used."
+        },
+        {
+          "index": 17,
+          "name": "num_sv_multi",
+          "type": "int",
+          "note": "#solnMultiSVs = Number of satellites with multi-frequency signals used."
+        },
+        {
+          "index": 18,
+          "name": "reserved",
+          "type": "str",
+          "note": "Reserved."
+        },
+        {
+          "index": 19,
+          "name": "extended_sol_status",
+          "type": "str",
+          "note": "Extended solution status; see Table 4-3 Extended Solution Status.",
+          "note_table": "table_4_3_extended_solution_status"
+        },
+        {
+          "index": 20,
+          "name": "gal_bds_mask",
+          "type": "str",
+          "note": "Galileo/BeiDou signal mask; see Table 4-5 Galileo and BDS Signal Used Mask.",
+          "note_table": "table_4_5_galileo_bds_signal_mask"
+        },
+        {
+          "index": 21,
+          "name": "gps_glo_mask",
+          "type": "str",
+          "note": "GPS/GLONASS signal mask; see Table 4-4 GPS and GLONASS Signal Used Mask.",
+          "note_table": "table_4_4_gps_glo_signal_mask"
+        },
+        {
+          "index": 22,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Data fields begin after the ';' separator in the ASCII log.",
+        "Solution/position types follow UG017 table definitions.",
+        "Masks and CRC fields are reported as hexadecimal strings."
+      ]
+    },
+    "binary": {
+      "tag": "BESTPOSB",
+      "id": 42,
+      "name": "Position Data",
+      "description": "Position Data (binary)",
+      "log_command": "bestposb",
+      "default_rate_hz": 10,
+      "on_new": false,
+      "payload_length": 72,
+      "fields": [
+        {
+          "name": "solution_status",
+          "type": "uint32",
+          "note": "Solution status; see Table 4-1 Solution Status.",
+          "note_table": "table_4_1_solution_status"
+        },
+        {
+          "name": "position_type",
+          "type": "uint32",
+          "note": "Position type; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "name": "latitude_deg",
+          "type": "float64",
+          "unit": "deg"
+        },
+        {
+          "name": "longitude_deg",
+          "type": "float64",
+          "unit": "deg"
+        },
+        {
+          "name": "height_m",
+          "type": "float64",
+          "unit": "m",
+          "note": "Height above mean sea level."
+        },
+        {
+          "name": "undulation_m",
+          "type": "float32",
+          "unit": "m",
+          "note": "Geoid-ellipsoid separation."
+        },
+        {
+          "name": "datum_id",
+          "type": "uint32",
+          "note": "Datum identifier."
+        },
+        {
+          "name": "latitude_sigma_m",
+          "type": "float32",
+          "unit": "m",
+          "note": "Latitude 1-sigma standard deviation."
+        },
+        {
+          "name": "longitude_sigma_m",
+          "type": "float32",
+          "unit": "m",
+          "note": "Longitude 1-sigma standard deviation."
+        },
+        {
+          "name": "height_sigma_m",
+          "type": "float32",
+          "unit": "m",
+          "note": "Height 1-sigma standard deviation."
+        },
+        {
+          "name": "base_station_id",
+          "type": "char",
+          "length": 4,
+          "strip": true,
+          "note": "Base station ID (0 when single-point)."
+        },
+        {
+          "name": "diff_age_s",
+          "type": "float32",
+          "unit": "s",
+          "note": "Differential age."
+        },
+        {
+          "name": "sol_age_s",
+          "type": "float32",
+          "unit": "s",
+          "note": "Solution age."
+        },
+        {
+          "name": "num_sv_tracked",
+          "type": "uint8",
+          "note": "Number of satellites tracked."
+        },
+        {
+          "name": "num_sv_used",
+          "type": "uint8",
+          "note": "Number of satellites used in solution."
+        },
+        {
+          "name": "num_sv_l1",
+          "type": "uint8",
+          "note": "Number of L1/E1/B1 satellites used."
+        },
+        {
+          "name": "num_sv_multi",
+          "type": "uint8",
+          "note": "Number of multi-frequency satellites used."
+        },
+        {
+          "name": "reserved",
+          "type": "uint8",
+          "note": "Reserved."
+        },
+        {
+          "name": "extended_sol_status",
+          "type": "uint8",
+          "note": "Extended solution status; see Table 4-3 Extended Solution Status.",
+          "note_table": "table_4_3_extended_solution_status"
+        },
+        {
+          "name": "gal_bds_mask",
+          "type": "uint8",
+          "note": "Galileo/BeiDou signal mask; see Table 4-5 Galileo and BDS Signal Used Mask.",
+          "note_table": "table_4_5_galileo_bds_signal_mask"
+        },
+        {
+          "name": "gps_glo_mask",
+          "type": "uint8",
+          "note": "GPS/GLONASS signal mask; see Table 4-4 GPS and GLONASS Signal Used Mask.",
+          "note_table": "table_4_4_gps_glo_signal_mask"
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "notes": [
+        "solution_status & position_type follow NovAtel BESTPOS definitions.",
+        "lat/lon in degrees, height relative to ellipsoid.",
+        "Sigma values are 1-sigma uncertainties."
+      ]
+    }
+  },
+  "BESTGNSSPOS": {
+    "label": "Best GNSS Position",
+    "description": "Best GNSS-only position output (no INS).",
+    "ascii": {
+      "tag": "BESTGNSSPOSA",
+      "name": "Best GNSS Position (ASCII)",
+      "description": "Best GNSS position (ASCII)",
+      "log_command": "bestgnssposa",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#BESTGNSSPOSA",
+        "BESTGNSSPOSA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "solution_status",
+          "type": "str",
+          "note": "Solution status; see Table 4-1 Solution Status.",
+          "note_table": "table_4_1_solution_status"
+        },
+        {
+          "index": 2,
+          "name": "position_type",
+          "type": "str",
+          "note": "Position type; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "index": 3,
+          "name": "latitude_deg",
+          "type": "float",
+          "unit": "deg"
+        },
+        {
+          "index": 4,
+          "name": "longitude_deg",
+          "type": "float",
+          "unit": "deg"
+        },
+        {
+          "index": 5,
+          "name": "height_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Height above mean sea level."
+        },
+        {
+          "index": 6,
+          "name": "undulation_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Geoid-ellipsoid separation."
+        },
+        {
+          "index": 7,
+          "name": "datum_id",
+          "type": "str",
+          "note": "Datum identifier."
+        },
+        {
+          "index": 8,
+          "name": "latitude_sigma_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Latitude 1-sigma standard deviation."
+        },
+        {
+          "index": 9,
+          "name": "longitude_sigma_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Longitude 1-sigma standard deviation."
+        },
+        {
+          "index": 10,
+          "name": "height_sigma_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Height 1-sigma standard deviation."
+        },
+        {
+          "index": 11,
+          "name": "base_station_id",
+          "type": "str",
+          "note": "Base station ID."
+        },
+        {
+          "index": 12,
+          "name": "diff_age_s",
+          "type": "float",
+          "unit": "s",
+          "note": "Differential age."
+        },
+        {
+          "index": 13,
+          "name": "sol_age_s",
+          "type": "float",
+          "unit": "s",
+          "note": "Solution age."
+        },
+        {
+          "index": 14,
+          "name": "num_sv_tracked",
+          "type": "int",
+          "note": "Number of satellites tracked."
+        },
+        {
+          "index": 15,
+          "name": "num_sv_used",
+          "type": "int",
+          "note": "Number of satellites used in solution."
+        },
+        {
+          "index": 16,
+          "name": "num_sv_l1",
+          "type": "int",
+          "note": "Number of satellites with L1/E1/B1 signals."
+        },
+        {
+          "index": 17,
+          "name": "num_sv_multi",
+          "type": "int",
+          "note": "Number of satellites with multi-frequency signals."
+        },
+        {
+          "index": 18,
+          "name": "reserved",
+          "type": "str",
+          "note": "Reserved."
+        },
+        {
+          "index": 19,
+          "name": "extended_sol_status",
+          "type": "str",
+          "note": "Extended solution status; see Table 4-3 Extended Solution Status.",
+          "note_table": "table_4_3_extended_solution_status"
+        },
+        {
+          "index": 20,
+          "name": "gal_bds_mask",
+          "type": "str",
+          "note": "Galileo/BeiDou signal mask; see Table 4-5 Galileo and BDS Signal Used Mask.",
+          "note_table": "table_4_5_galileo_bds_signal_mask"
+        },
+        {
+          "index": 21,
+          "name": "gps_glo_mask",
+          "type": "str",
+          "note": "GPS/GLONASS signal mask; see Table 4-4 GPS and GLONASS Signal Used Mask.",
+          "note_table": "table_4_4_gps_glo_signal_mask"
+        },
+        {
+          "index": 22,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Structure mirrors BESTPOSA but aligns with the BESTGNSSPOS log definition (message ID 1429).",
+        "Counts for L1/multi-frequency satellites follow UG017 section 4.2.4."
+      ]
+    },
+    "binary": {
+      "tag": "BESTGNSSPOSB",
+      "id": 1429,
+      "name": "Best GNSS Position",
+      "description": "Best GNSS position (binary)",
+      "log_command": "bestgnssposb",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "payload_length": 72,
+      "fields": [
+        {
+          "name": "solution_status",
+          "type": "uint32",
+          "note": "Solution status; see Table 4-1 Solution Status.",
+          "note_table": "table_4_1_solution_status"
+        },
+        {
+          "name": "position_type",
+          "type": "uint32",
+          "note": "Position type; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "name": "latitude_deg",
+          "type": "float64",
+          "unit": "deg"
+        },
+        {
+          "name": "longitude_deg",
+          "type": "float64",
+          "unit": "deg"
+        },
+        {
+          "name": "height_m",
+          "type": "float64",
+          "unit": "m",
+          "note": "Height above mean sea level."
+        },
+        {
+          "name": "undulation_m",
+          "type": "float32",
+          "unit": "m",
+          "note": "Geoid-ellipsoid separation."
+        },
+        {
+          "name": "datum_id",
+          "type": "uint32",
+          "note": "Datum identifier."
+        },
+        {
+          "name": "latitude_sigma_m",
+          "type": "float32",
+          "unit": "m",
+          "note": "Latitude 1-sigma standard deviation."
+        },
+        {
+          "name": "longitude_sigma_m",
+          "type": "float32",
+          "unit": "m",
+          "note": "Longitude 1-sigma standard deviation."
+        },
+        {
+          "name": "height_sigma_m",
+          "type": "float32",
+          "unit": "m",
+          "note": "Height 1-sigma standard deviation."
+        },
+        {
+          "name": "base_station_id",
+          "type": "char",
+          "length": 4,
+          "strip": true,
+          "note": "Base station ID."
+        },
+        {
+          "name": "diff_age_s",
+          "type": "float32",
+          "unit": "s",
+          "note": "Differential age."
+        },
+        {
+          "name": "sol_age_s",
+          "type": "float32",
+          "unit": "s",
+          "note": "Solution age."
+        },
+        {
+          "name": "num_sv_tracked",
+          "type": "uint8",
+          "note": "Number of satellites tracked."
+        },
+        {
+          "name": "num_sv_used",
+          "type": "uint8",
+          "note": "Number of satellites used in solution."
+        },
+        {
+          "name": "num_sv_l1",
+          "type": "uint8",
+          "note": "Number of L1/E1/B1 satellites used."
+        },
+        {
+          "name": "num_sv_multi",
+          "type": "uint8",
+          "note": "Number of multi-frequency satellites used."
+        },
+        {
+          "name": "reserved",
+          "type": "uint8",
+          "note": "Reserved."
+        },
+        {
+          "name": "extended_sol_status",
+          "type": "uint8",
+          "note": "Extended solution status; see Table 4-3 Extended Solution Status.",
+          "note_table": "table_4_3_extended_solution_status"
+        },
+        {
+          "name": "gal_bds_mask",
+          "type": "uint8",
+          "note": "Galileo/BeiDou signal mask; see Table 4-5 Galileo and BDS Signal Used Mask.",
+          "note_table": "table_4_5_galileo_bds_signal_mask"
+        },
+        {
+          "name": "gps_glo_mask",
+          "type": "uint8",
+          "note": "GPS/GLONASS signal mask; see Table 4-4 GPS and GLONASS Signal Used Mask.",
+          "note_table": "table_4_4_gps_glo_signal_mask"
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "notes": [
+        "Message ID 1429 per UG017 section 4.2.4.",
+        "Field layout mirrors BESTPOSB but with GNSS-specific solution type labelling.",
+        "CRC bytes are excluded because the parser handles framed checks separately."
+      ]
+    }
+  },
+  "BESTPVT": {
+    "label": "Best PVT",
+    "description": "Combined Position, Velocity and Time solution.",
+    "ascii": {
+      "tag": "BESTPVTA",
+      "name": "Best Position, Velocity, Time (ASCII)",
+      "description": "Best PVT (ASCII)",
+      "log_command": "bestpvta",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#BESTPVTA",
+        "BESTPVTA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "solution_status",
+          "type": "str",
+          "note": "Solution status; see Table 4-1 Solution Status.",
+          "note_table": "table_4_1_solution_status"
+        },
+        {
+          "index": 2,
+          "name": "position_type",
+          "type": "str",
+          "note": "Position type; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "index": 3,
+          "name": "latitude_deg",
+          "type": "float",
+          "unit": "deg"
+        },
+        {
+          "index": 4,
+          "name": "longitude_deg",
+          "type": "float",
+          "unit": "deg"
+        },
+        {
+          "index": 5,
+          "name": "height_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Height above mean sea level."
+        },
+        {
+          "index": 6,
+          "name": "undulation_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Geoid-ellipsoid separation."
+        },
+        {
+          "index": 7,
+          "name": "datum_id",
+          "type": "str",
+          "note": "Datum identifier."
+        },
+        {
+          "index": 8,
+          "name": "latitude_sigma_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Latitude standard deviation (m)."
+        },
+        {
+          "index": 9,
+          "name": "longitude_sigma_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Longitude standard deviation (m)."
+        },
+        {
+          "index": 10,
+          "name": "height_sigma_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Height standard deviation (m)."
+        },
+        {
+          "index": 11,
+          "name": "base_station_id",
+          "type": "str",
+          "note": "Base station ID (0 for single point)."
+        },
+        {
+          "index": 12,
+          "name": "diff_age_s",
+          "type": "float",
+          "unit": "s",
+          "note": "Differential age (s)."
+        },
+        {
+          "index": 13,
+          "name": "sol_age_s",
+          "type": "float",
+          "unit": "s",
+          "note": "Solution age (s)."
+        },
+        {
+          "index": 14,
+          "name": "num_sv_tracked",
+          "type": "int",
+          "note": "#SVs = Number of satellites tracked."
+        },
+        {
+          "index": 15,
+          "name": "num_sv_used",
+          "type": "int",
+          "note": "#solnSVs = Number of satellites used in solution."
+        },
+        {
+          "index": 16,
+          "name": "num_sv_l1",
+          "type": "int",
+          "note": "#solnL1SVs = Number of satellites with L1/E1/B1 signals used."
+        },
+        {
+          "index": 17,
+          "name": "num_sv_multi",
+          "type": "int",
+          "note": "#solnMultiSVs = Number of satellites with multi-frequency signals used."
+        },
+        {
+          "index": 18,
+          "name": "reserved",
+          "type": "str",
+          "note": "Reserved."
+        },
+        {
+          "index": 19,
+          "name": "extended_sol_status",
+          "type": "str",
+          "note": "Extended solution status; see Table 4-3 Extended Solution Status.",
+          "note_table": "table_4_3_extended_solution_status"
+        },
+        {
+          "index": 20,
+          "name": "gal_bds_mask",
+          "type": "str",
+          "note": "Galileo/BeiDou signal mask; see Table 4-5 Galileo and BDS Signal Used Mask.",
+          "note_table": "table_4_5_galileo_bds_signal_mask"
+        },
+        {
+          "index": 21,
+          "name": "gps_glo_mask",
+          "type": "str",
+          "note": "GPS/GLONASS signal mask; see Table 4-4 GPS and GLONASS Signal Used Mask.",
+          "note_table": "table_4_4_gps_glo_signal_mask"
+        },
+        {
+          "index": 22,
+          "name": "velocity_type",
+          "type": "str",
+          "note": "Velocity type; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "index": 23,
+          "name": "latency_s",
+          "type": "float",
+          "unit": "s",
+          "note": "Latency (s)."
+        },
+        {
+          "index": 24,
+          "name": "hor_speed_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "Horizontal speed (m/s)."
+        },
+        {
+          "index": 25,
+          "name": "trk_gnd_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Track over ground (deg, 0-360)."
+        },
+        {
+          "index": 26,
+          "name": "vert_speed_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "Vertical speed (m/s); positive=rise, negative=fall."
+        },
+        {
+          "index": 27,
+          "name": "hor_speed_sigma",
+          "type": "float",
+          "unit": "m/s",
+          "note": "Horizontal velocity standard deviation (m/s)."
+        },
+        {
+          "index": 28,
+          "name": "vert_speed_sigma",
+          "type": "float",
+          "unit": "m/s",
+          "note": "Vertical velocity standard deviation (m/s)."
+        },
+        {
+          "index": 29,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Velocity fields are derived from GNSS solution; angles wrap 0-360\u00b0.",
+        "Solution and velocity type enums follow UG017 tables."
+      ]
+    },
+    "binary": {
+      "tag": "BESTPVTB",
+      "id": 10000,
+      "name": "Best Position, Velocity, Time (Binary)",
+      "description": "Best PVT (binary)",
+      "log_command": "bestpvtb",
+      "default_rate_hz": 5,
+      "on_new": false,
+      "payload_length": 112,
+      "fields": [
+        {
+          "name": "solution_status",
+          "type": "uint32",
+          "note": "Solution status; see Table 4-1 Solution Status.",
+          "note_table": "table_4_1_solution_status"
+        },
+        {
+          "name": "position_type",
+          "type": "uint32",
+          "note": "Position type; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "name": "latitude_deg",
+          "type": "float64",
+          "unit": "deg"
+        },
+        {
+          "name": "longitude_deg",
+          "type": "float64",
+          "unit": "deg"
+        },
+        {
+          "name": "height_m",
+          "type": "float64",
+          "unit": "m",
+          "note": "Height above mean sea level."
+        },
+        {
+          "name": "undulation_m",
+          "type": "float32",
+          "unit": "m",
+          "note": "Geoid-ellipsoid separation."
+        },
+        {
+          "name": "datum_id",
+          "type": "uint32",
+          "note": "Datum identifier."
+        },
+        {
+          "name": "latitude_sigma_m",
+          "type": "float32",
+          "unit": "m",
+          "note": "Latitude standard deviation (m)."
+        },
+        {
+          "name": "longitude_sigma_m",
+          "type": "float32",
+          "unit": "m",
+          "note": "Longitude standard deviation (m)."
+        },
+        {
+          "name": "height_sigma_m",
+          "type": "float32",
+          "unit": "m",
+          "note": "Height standard deviation (m)."
+        },
+        {
+          "name": "base_station_id",
+          "type": "char",
+          "length": 4,
+          "strip": true,
+          "note": "Base station ID (0 for single point)."
+        },
+        {
+          "name": "diff_age_s",
+          "type": "float32",
+          "unit": "s",
+          "note": "Differential age (s)."
+        },
+        {
+          "name": "sol_age_s",
+          "type": "float32",
+          "unit": "s",
+          "note": "Solution age (s)."
+        },
+        {
+          "name": "num_sv_tracked",
+          "type": "uint8",
+          "note": "#SVs = Number of satellites tracked."
+        },
+        {
+          "name": "num_sv_used",
+          "type": "uint8",
+          "note": "#solnSVs = Number of satellites used in solution."
+        },
+        {
+          "name": "num_sv_l1",
+          "type": "uint8",
+          "note": "#solnL1SVs = Number of satellites with L1/E1/B1 signals used."
+        },
+        {
+          "name": "num_sv_multi",
+          "type": "uint8",
+          "note": "#solnMultiSVs = Number of satellites with multi-frequency signals used."
+        },
+        {
+          "name": "reserved0",
+          "type": "uint8",
+          "note": "Reserved."
+        },
+        {
+          "name": "extended_sol_status",
+          "type": "uint8",
+          "note": "Extended solution status; see Table 4-3 Extended Solution Status.",
+          "note_table": "table_4_3_extended_solution_status"
+        },
+        {
+          "name": "gal_bds_mask",
+          "type": "uint8",
+          "note": "Galileo/BeiDou signal mask; see Table 4-5 Galileo and BDS Signal Used Mask.",
+          "note_table": "table_4_5_galileo_bds_signal_mask"
+        },
+        {
+          "name": "gps_glo_mask",
+          "type": "uint8",
+          "note": "GPS/GLONASS signal mask; see Table 4-4 GPS and GLONASS Signal Used Mask.",
+          "note_table": "table_4_4_gps_glo_signal_mask"
+        },
+        {
+          "name": "velocity_type",
+          "type": "uint32",
+          "note": "Velocity type; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "name": "latency_s",
+          "type": "float32",
+          "unit": "s",
+          "note": "Latency (s)."
+        },
+        {
+          "name": "hor_speed_ms",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "Horizontal speed (m/s)."
+        },
+        {
+          "name": "trk_gnd_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Track over ground (deg, 0-360)."
+        },
+        {
+          "name": "vert_speed_ms",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "Vertical speed (m/s); positive=rise, negative=fall."
+        },
+        {
+          "name": "hor_speed_sigma",
+          "type": "float32",
+          "unit": "m/s",
+          "note": "Horizontal velocity standard deviation (m/s)."
+        },
+        {
+          "name": "vert_speed_sigma",
+          "type": "float32",
+          "unit": "m/s",
+          "note": "Vertical velocity standard deviation (m/s)."
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "notes": [
+        "Binary companion of BESTPVTA ASCII log.",
+        "Velocity angles wrap 0-360\u00b0, speeds in m/s."
+      ]
+    }
+  },
+  "BESTGNSSVEL": {
+    "label": "Best GNSS Velocity",
+    "description": "Best GNSS velocity solution (non-INS).",
+    "ascii": {
+      "tag": "BESTGNSSVELA",
+      "name": "Best GNSS Velocity (ASCII)",
+      "description": "Best GNSS velocity info (ASCII)",
+      "log_command": "bestgnssvela",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#BESTGNSSVELA",
+        "BESTGNSSVELA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "solution_status",
+          "type": "str",
+          "note": "Solution status; see Table 4-1 Solution Status.",
+          "note_table": "table_4_1_solution_status"
+        },
+        {
+          "index": 2,
+          "name": "velocity_type",
+          "type": "str",
+          "note": "Velocity type; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "index": 3,
+          "name": "latency_s",
+          "type": "float",
+          "unit": "s",
+          "note": "Latency (s)."
+        },
+        {
+          "index": 4,
+          "name": "diff_age_s",
+          "type": "float",
+          "unit": "s",
+          "note": "Differential age (s)."
+        },
+        {
+          "index": 5,
+          "name": "horizontal_speed_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "Horizontal speed over ground (m/s)."
+        },
+        {
+          "index": 6,
+          "name": "track_ground_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Track over ground relative to True North (deg, 0-360)."
+        },
+        {
+          "index": 7,
+          "name": "vertical_speed_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "Vertical speed (m/s); positive=rise, negative=fall."
+        },
+        {
+          "index": 8,
+          "name": "reserved_value",
+          "type": "float",
+          "note": "Reserved."
+        },
+        {
+          "index": 9,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Latency is subtracted from the time tag to mark solution validity.",
+        "Track is reported clockwise with speed units in m/s."
+      ]
+    },
+    "binary": {
+      "tag": "BESTGNSSVELB",
+      "id": 1430,
+      "name": "Best GNSS Velocity",
+      "description": "Best GNSS velocity (binary)",
+      "log_command": "bestgnssvelb",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "payload_length": 44,
+      "fields": [
+        {
+          "name": "solution_status",
+          "type": "uint32",
+          "note": "Solution status; see Table 4-1 Solution Status.",
+          "note_table": "table_4_1_solution_status"
+        },
+        {
+          "name": "velocity_type",
+          "type": "uint32",
+          "note": "Velocity type; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "name": "latency_s",
+          "type": "float32",
+          "unit": "s",
+          "note": "Latency (s)."
+        },
+        {
+          "name": "diff_age_s",
+          "type": "float32",
+          "unit": "s",
+          "note": "Differential age (s)."
+        },
+        {
+          "name": "horizontal_speed_ms",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "Horizontal speed over ground (m/s)."
+        },
+        {
+          "name": "track_ground_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Track over ground relative to True North (deg, 0-360)."
+        },
+        {
+          "name": "vertical_speed_ms",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "Vertical speed (m/s); positive=rise, negative=fall."
+        },
+        {
+          "name": "reserved_value",
+          "type": "float32",
+          "note": "Reserved."
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "notes": [
+        "Binary layout aligns with UG017 section 4.2.6 table.",
+        "CRC is handled by the framing layer and is not part of the payload."
+      ]
+    }
+  },
+  "HEADING": {
+    "label": "Heading / Attitude",
+    "description": "Heading solution using dual antennas.",
+    "ascii": {
+      "tag": "HEADINGA",
+      "name": "Heading (ASCII)",
+      "description": "Heading information (ASCII)",
+      "log_command": "headinga",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#HEADINGA",
+        "HEADINGA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "solution_status",
+          "type": "str",
+          "note": "Solution status; see Table 4-1 Solution Status.",
+          "note_table": "table_4_1_solution_status"
+        },
+        {
+          "index": 2,
+          "name": "position_type",
+          "type": "str",
+          "note": "Heading status; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "index": 3,
+          "name": "baseline_length_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Heading baseline length (m)."
+        },
+        {
+          "index": 4,
+          "name": "heading_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Heading angle 0\u00b0\u2013360\u00b0."
+        },
+        {
+          "index": 5,
+          "name": "pitch_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Pitch angle (-90\u00b0 .. +90\u00b0)."
+        },
+        {
+          "index": 6,
+          "name": "reserved0",
+          "type": "float",
+          "note": "Reserved."
+        },
+        {
+          "index": 7,
+          "name": "heading_std_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Heading standard deviation (deg)."
+        },
+        {
+          "index": 8,
+          "name": "pitch_std_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Pitch standard deviation (deg)."
+        },
+        {
+          "index": 9,
+          "name": "base_station_id",
+          "type": "str",
+          "note": "Station ID (0 when not differential)."
+        },
+        {
+          "index": 10,
+          "name": "num_sv_tracked",
+          "type": "int",
+          "note": "#SVs = Number of satellites tracked."
+        },
+        {
+          "index": 11,
+          "name": "num_sv_used",
+          "type": "int",
+          "note": "#solnSVs = Number of satellites used in heading."
+        },
+        {
+          "index": 12,
+          "name": "num_sv_above_elevation",
+          "type": "int",
+          "note": "#obs = Number of satellites above heading antenna elevation."
+        },
+        {
+          "index": 13,
+          "name": "num_l2_above_elevation",
+          "type": "int",
+          "note": "#multi = Number of L2 satellites above heading antenna elevation."
+        },
+        {
+          "index": 14,
+          "name": "solution_source",
+          "type": "str",
+          "note": "Solution source; see Table 4-7 Solution Source.",
+          "note_table": "table_4_7_solution_source"
+        },
+        {
+          "index": 15,
+          "name": "extended_sol_status",
+          "type": "str",
+          "note": "Extended solution status; see Table 4-3 Extended Solution Status.",
+          "note_table": "table_4_3_extended_solution_status"
+        },
+        {
+          "index": 16,
+          "name": "gal_bds_mask",
+          "type": "str",
+          "note": "Galileo/BeiDou signal mask; see Table 4-5 Galileo and BDS Signal Used Mask.",
+          "note_table": "table_4_5_galileo_bds_signal_mask"
+        },
+        {
+          "index": 17,
+          "name": "gps_glo_mask",
+          "type": "str",
+          "note": "GPS/GLONASS signal mask; see Table 4-4 GPS and GLONASS Signal Used Mask.",
+          "note_table": "table_4_4_gps_glo_signal_mask"
+        },
+        {
+          "index": 18,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "ASCII companion for HEADINGB (message ID 971).",
+        "Solution status / position type / source enums follow UG017 tables."
+      ]
+    },
+    "binary": {
+      "tag": "HEADINGB",
+      "id": 971,
+      "name": "Heading / Attitude",
+      "description": "Heading & orientation",
+      "log_command": "headingb",
+      "default_rate_hz": 5,
+      "on_new": false,
+      "payload_length": 44,
+      "fields": [
+        {
+          "name": "solution_status",
+          "type": "uint32",
+          "note": "Solution status; see Table 4-1 Solution Status.",
+          "note_table": "table_4_1_solution_status"
+        },
+        {
+          "name": "position_type",
+          "type": "uint32",
+          "note": "Heading status; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "name": "baseline_length_m",
+          "type": "float32",
+          "unit": "m",
+          "note": "Heading baseline length (m)."
+        },
+        {
+          "name": "heading_deg",
+          "type": "float32",
+          "unit": "deg",
+          "note": "Heading angle 0\u00b0\u2013360\u00b0."
+        },
+        {
+          "name": "pitch_deg",
+          "type": "float32",
+          "unit": "deg",
+          "note": "Pitch angle (-90\u00b0 .. +90\u00b0)."
+        },
+        {
+          "name": "reserved",
+          "type": "float32",
+          "note": "Reserved."
+        },
+        {
+          "name": "heading_std_deg",
+          "type": "float32",
+          "unit": "deg",
+          "note": "Heading standard deviation (deg)."
+        },
+        {
+          "name": "pitch_std_deg",
+          "type": "float32",
+          "unit": "deg",
+          "note": "Pitch standard deviation (deg)."
+        },
+        {
+          "name": "station_id",
+          "type": "char",
+          "length": 4,
+          "strip": true,
+          "note": "Station ID (0 when not differential)."
+        },
+        {
+          "name": "num_sv_tracked",
+          "type": "uint8",
+          "note": "#SVs = Number of satellites tracked."
+        },
+        {
+          "name": "num_sv_used",
+          "type": "uint8",
+          "note": "#solnSVs = Number of satellites used in heading."
+        },
+        {
+          "name": "num_sv_above_el",
+          "type": "uint8",
+          "note": "#obs = Number of satellites above heading antenna elevation."
+        },
+        {
+          "name": "num_l2_above_el",
+          "type": "uint8",
+          "note": "#multi = Number of L2 satellites above heading antenna elevation."
+        },
+        {
+          "name": "solution_source",
+          "type": "uint8",
+          "note": "Solution source; see Table 4-7 Solution Source.",
+          "note_table": "table_4_7_solution_source"
+        },
+        {
+          "name": "extended_sol_status",
+          "type": "uint8",
+          "note": "Extended solution status; see Table 4-3 Extended Solution Status.",
+          "note_table": "table_4_3_extended_solution_status"
+        },
+        {
+          "name": "gal_bds_mask",
+          "type": "uint8",
+          "note": "Galileo/BeiDou signal mask; see Table 4-5 Galileo and BDS Signal Used Mask.",
+          "note_table": "table_4_5_galileo_bds_signal_mask"
+        },
+        {
+          "name": "gps_glo_mask",
+          "type": "uint8",
+          "note": "GPS/GLONASS signal mask; see Table 4-4 GPS and GLONASS Signal Used Mask.",
+          "note_table": "table_4_4_gps_glo_signal_mask"
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "notes": [
+        "Heading & pitch in degrees. Std columns are 1-sigma.",
+        "solution_source indicates IMU/GNSS blending."
+      ]
+    }
+  },
+  "HEADING2": {
+    "label": "Heading 2.0",
+    "description": "Dual-antenna heading with extended metadata.",
+    "ascii": {
+      "tag": "HEADING2A",
+      "name": "Heading 2.0 (ASCII)",
+      "description": "Heading 2.0 (ASCII)",
+      "log_command": "heading2a",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#HEADING2A",
+        "HEADING2A"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "solution_status",
+          "type": "str",
+          "note": "Solution status; see Table 4-1 Solution Status.",
+          "note_table": "table_4_1_solution_status"
+        },
+        {
+          "index": 2,
+          "name": "position_type",
+          "type": "str",
+          "note": "Heading status; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "index": 3,
+          "name": "baseline_length_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Heading baseline length (m)."
+        },
+        {
+          "index": 4,
+          "name": "heading_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Heading angle 0\u2013360\u00b0."
+        },
+        {
+          "index": 5,
+          "name": "pitch_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Pitch angle (-90\u00b0 .. +90\u00b0)."
+        },
+        {
+          "index": 6,
+          "name": "reserved0",
+          "type": "float",
+          "note": "Reserved."
+        },
+        {
+          "index": 7,
+          "name": "heading_std_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Heading standard deviation (deg)."
+        },
+        {
+          "index": 8,
+          "name": "pitch_std_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Pitch standard deviation (deg)."
+        },
+        {
+          "index": 9,
+          "name": "rover_station_id",
+          "type": "str",
+          "note": "Rover station ID."
+        },
+        {
+          "index": 10,
+          "name": "master_station_id",
+          "type": "str",
+          "note": "Base station ID."
+        },
+        {
+          "index": 11,
+          "name": "num_sv_tracked",
+          "type": "int",
+          "note": "#SVs = Number of satellites tracked."
+        },
+        {
+          "index": 12,
+          "name": "num_sv_used",
+          "type": "int",
+          "note": "#solnSVs = Number of satellites used in heading."
+        },
+        {
+          "index": 13,
+          "name": "num_sv_above_el",
+          "type": "int",
+          "note": "#obs = Number of satellites above heading antenna elevation."
+        },
+        {
+          "index": 14,
+          "name": "num_l2_above_el",
+          "type": "int",
+          "note": "#multi = Number of L2 satellites above heading antenna elevation."
+        },
+        {
+          "index": 15,
+          "name": "solution_source",
+          "type": "str",
+          "note": "Solution source; see Table 4-7 Solution Source.",
+          "note_table": "table_4_7_solution_source"
+        },
+        {
+          "index": 16,
+          "name": "extended_sol_status",
+          "type": "str",
+          "note": "Extended solution status; see Table 4-3 Extended Solution Status.",
+          "note_table": "table_4_3_extended_solution_status"
+        },
+        {
+          "index": 17,
+          "name": "gal_bds_mask",
+          "type": "str",
+          "note": "Galileo/BeiDou signal mask; see Table 4-5 Galileo and BDS Signal Used Mask.",
+          "note_table": "table_4_5_galileo_bds_signal_mask"
+        },
+        {
+          "index": 18,
+          "name": "gps_glo_mask",
+          "type": "str",
+          "note": "GPS/GLONASS signal mask; see Table 4-4 GPS and GLONASS Signal Used Mask.",
+          "note_table": "table_4_4_gps_glo_signal_mask"
+        },
+        {
+          "index": 19,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "ASCII companion for HEADING2B (message ID 1335).",
+        "Station IDs are Rover/Master, CRC reported as hex string."
+      ]
+    },
+    "binary": {
+      "tag": "HEADING2B",
+      "id": 1335,
+      "name": "Heading 2.0 (Binary)",
+      "description": "Heading 2.0 (dual antenna)",
+      "log_command": "heading2b",
+      "default_rate_hz": 5,
+      "on_new": false,
+      "payload_length": 48,
+      "fields": [
+        {
+          "name": "solution_status",
+          "type": "uint32",
+          "note": "Solution status; see Table 4-1 Solution Status.",
+          "note_table": "table_4_1_solution_status"
+        },
+        {
+          "name": "position_type",
+          "type": "uint32",
+          "note": "Heading status; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "name": "baseline_length_m",
+          "type": "float32",
+          "unit": "m",
+          "note": "Heading baseline length (m)."
+        },
+        {
+          "name": "heading_deg",
+          "type": "float32",
+          "unit": "deg (0-360)",
+          "note": "Heading angle 0\u2013360\u00b0."
+        },
+        {
+          "name": "pitch_deg",
+          "type": "float32",
+          "unit": "deg (-90..+90)",
+          "note": "Pitch angle (-90\u00b0 .. +90\u00b0)."
+        },
+        {
+          "name": "reserved0",
+          "type": "float32",
+          "note": "Reserved."
+        },
+        {
+          "name": "heading_std_deg",
+          "type": "float32",
+          "unit": "deg",
+          "note": "Heading standard deviation (deg)."
+        },
+        {
+          "name": "pitch_std_deg",
+          "type": "float32",
+          "unit": "deg",
+          "note": "Pitch standard deviation (deg)."
+        },
+        {
+          "name": "rover_station_id",
+          "type": "char",
+          "length": 4,
+          "strip": true,
+          "note": "Rover station ID."
+        },
+        {
+          "name": "master_station_id",
+          "type": "char",
+          "length": 4,
+          "strip": true,
+          "note": "Base station ID."
+        },
+        {
+          "name": "num_sv_tracked",
+          "type": "uint8",
+          "note": "#SVs = Number of satellites tracked."
+        },
+        {
+          "name": "num_sv_used",
+          "type": "uint8",
+          "note": "#solnSVs = Number of satellites used in heading."
+        },
+        {
+          "name": "num_sv_above_el",
+          "type": "uint8",
+          "note": "#obs = Number of satellites above heading antenna elevation."
+        },
+        {
+          "name": "num_l2_above_el",
+          "type": "uint8",
+          "note": "#multi = Number of L2 satellites above heading antenna elevation."
+        },
+        {
+          "name": "solution_source",
+          "type": "uint8",
+          "note": "Solution source; see Table 4-7 Solution Source.",
+          "note_table": "table_4_7_solution_source"
+        },
+        {
+          "name": "extended_sol_status",
+          "type": "uint8",
+          "note": "Extended solution status; see Table 4-3 Extended Solution Status.",
+          "note_table": "table_4_3_extended_solution_status"
+        },
+        {
+          "name": "gal_bds_mask",
+          "type": "uint8",
+          "note": "Galileo/BeiDou signal mask; see Table 4-5 Galileo and BDS Signal Used Mask.",
+          "note_table": "table_4_5_galileo_bds_signal_mask"
+        },
+        {
+          "name": "gps_glo_mask",
+          "type": "uint8",
+          "note": "GPS/GLONASS signal mask; see Table 4-4 GPS and GLONASS Signal Used Mask.",
+          "note_table": "table_4_4_gps_glo_signal_mask"
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "notes": [
+        "Binary counterpart of HEADING2A ASCII log.",
+        "All numeric values are little endian.",
+        "Station IDs are 4-char ASCII tags."
+      ]
+    }
+  },
+  "RAWIMU": {
+    "label": "Raw IMU",
+    "description": "Raw IMU samples from M21 sensor.",
+    "ascii": {
+      "tag": "RAWIMUA",
+      "name": "Raw IMU (ASCII)",
+      "description": "Raw IMU output (ASCII)",
+      "log_command": "rawimua",
+      "default_rate_hz": 0,
+      "on_new": true,
+      "aliases": [
+        "#RAWIMUA",
+        "RAWIMUA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "week",
+          "type": "int",
+          "note": "GNSS week."
+        },
+        {
+          "index": 2,
+          "name": "seconds_of_week",
+          "type": "float",
+          "unit": "s",
+          "note": "Seconds into GNSS week."
+        },
+        {
+          "index": 3,
+          "name": "imu_status",
+          "type": "hex",
+          "note": "IMU status flags (hex format)."
+        },
+        {
+          "index": 4,
+          "name": "zA",
+          "type": "int",
+          "note": "Z-axis acceleration variation (LSB)."
+        },
+        {
+          "index": 5,
+          "name": "nyA",
+          "type": "int",
+          "note": "-Y-axis acceleration variation (LSB)."
+        },
+        {
+          "index": 6,
+          "name": "xA",
+          "type": "int",
+          "note": "X-axis acceleration variation (LSB)."
+        },
+        {
+          "index": 7,
+          "name": "zG",
+          "type": "int",
+          "note": "Z-axis angular variation (LSB)."
+        },
+        {
+          "index": 8,
+          "name": "nyG",
+          "type": "int",
+          "note": "-Y-axis angular variation (LSB)."
+        },
+        {
+          "index": 9,
+          "name": "xG",
+          "type": "int",
+          "note": "X-axis angular variation (LSB)."
+        },
+        {
+          "index": 10,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Values reported in LSB; use Table 4-16 IMU Raw Data Conversion Factor for scale.",
+        "Sensor frame: +X forward, +Y right, +Z up."
+      ]
+    },
+    "binary": {
+      "tag": "RAWIMUB",
+      "id": 268,
+      "name": "Raw IMU (M21)",
+      "description": "Raw IMU data",
+      "log_command": "rawimub",
+      "default_rate_hz": 0,
+      "on_new": true,
+      "payload_length": 40,
+      "fields": [
+        {
+          "name": "week",
+          "type": "uint32",
+          "note": "GNSS week of the sample."
+        },
+        {
+          "name": "tow_s",
+          "type": "float64",
+          "unit": "s",
+          "note": "Seconds into week."
+        },
+        {
+          "name": "imu_status",
+          "type": "uint32",
+          "note": "IMU status flags."
+        },
+        {
+          "name": "zA",
+          "type": "int32",
+          "note": "Z-axis acceleration variation (LSB)."
+        },
+        {
+          "name": "nyA",
+          "type": "int32",
+          "note": "-Y-axis acceleration variation (LSB)."
+        },
+        {
+          "name": "xA",
+          "type": "int32",
+          "note": "X-axis acceleration variation (LSB)."
+        },
+        {
+          "name": "zG",
+          "type": "int32",
+          "note": "Z-axis angle/gyro variation (LSB)."
+        },
+        {
+          "name": "nyG",
+          "type": "int32",
+          "note": "-Y-axis angular rate variation (LSB)."
+        },
+        {
+          "name": "xG",
+          "type": "int32",
+          "note": "X-axis angular rate variation (LSB)."
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "derived": [
+        {
+          "name": "acc_x_lsb",
+          "expr": "xA"
+        },
+        {
+          "name": "acc_y_lsb",
+          "expr": "-nyA"
+        },
+        {
+          "name": "acc_z_lsb",
+          "expr": "zA"
+        },
+        {
+          "name": "gyr_x_lsb",
+          "expr": "xG"
+        },
+        {
+          "name": "gyr_y_lsb",
+          "expr": "-nyG"
+        },
+        {
+          "name": "gyr_z_lsb",
+          "expr": "zG"
+        },
+        {
+          "name": "gyr_x_dps",
+          "unit": "deg/s",
+          "expr": "xG * 1.52587890625e-05"
+        },
+        {
+          "name": "gyr_y_dps",
+          "unit": "deg/s",
+          "expr": "(-nyG) * 1.52587890625e-05"
+        },
+        {
+          "name": "gyr_z_dps",
+          "unit": "deg/s",
+          "expr": "zG * 1.52587890625e-05"
+        },
+        {
+          "name": "acc_x_ms2",
+          "unit": "m/s^2",
+          "expr": "xA * 7.48188018798828e-06"
+        },
+        {
+          "name": "acc_y_ms2",
+          "unit": "m/s^2",
+          "expr": "(-nyA) * 7.48188018798828e-06"
+        },
+        {
+          "name": "acc_z_ms2",
+          "unit": "m/s^2",
+          "expr": "zA * 7.48188018798828e-06"
+        },
+        {
+          "name": "dtheta_deg",
+          "unit": "deg",
+          "expr": "(xG * 1.52587890625e-07, (-nyG) * 1.52587890625e-07, zG * 1.52587890625e-07)",
+          "note": "Delta angle (X,Y,Z)"
+        },
+        {
+          "name": "dvel_mps",
+          "unit": "m/s",
+          "expr": "(xA * 7.48188018798828e-08, (-nyA) * 7.48188018798828e-08, zA * 7.48188018798828e-08)",
+          "note": "Delta velocity (X,Y,Z)"
+        }
+      ],
+      "notes": [
+        "LSB unit -> use Table 4-16 IMU Raw Data Conversion Factor for scale.",
+        "Accelerations reported in sensor frame (X forward, Y right, Z up)."
+      ]
+    }
+  },
+  "RAWIMUS": {
+    "label": "Raw IMU (Short Header)",
+    "description": "Short-header IMU raw observation data (ONNEW only).",
+    "ascii": {
+      "tag": "RAWIMUSA",
+      "name": "RAWIMUS (ASCII)",
+      "description": "Short header RAWIMU (ASCII)",
+      "log_command": "rawimusa",
+      "default_rate_hz": 0,
+      "on_new": true,
+      "aliases": [
+        "%RAWIMUSA",
+        "RAWIMUSA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "week",
+          "type": "int",
+          "note": "GNSS week."
+        },
+        {
+          "index": 2,
+          "name": "seconds_of_week",
+          "type": "float",
+          "unit": "s",
+          "note": "Seconds into week."
+        },
+        {
+          "index": 3,
+          "name": "imu_status",
+          "type": "int",
+          "note": "IMU status (default 0)."
+        },
+        {
+          "index": 4,
+          "name": "zA",
+          "type": "int",
+          "note": "Z-axis acceleration variation (LSB)."
+        },
+        {
+          "index": 5,
+          "name": "nyA",
+          "type": "int",
+          "note": "-Y-axis acceleration variation (LSB)."
+        },
+        {
+          "index": 6,
+          "name": "xA",
+          "type": "int",
+          "note": "X-axis acceleration variation (LSB)."
+        },
+        {
+          "index": 7,
+          "name": "zG",
+          "type": "int",
+          "note": "Z-axis angular variation (LSB)."
+        },
+        {
+          "index": 8,
+          "name": "nyG",
+          "type": "int",
+          "note": "-Y-axis angular variation (LSB)."
+        },
+        {
+          "index": 9,
+          "name": "xG",
+          "type": "int",
+          "note": "X-axis angular variation (LSB)."
+        },
+        {
+          "index": 10,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Short header variant of RAWIMU; ONNEW only.",
+        "LSB conversion uses Table 4-16 IMU Raw Data Conversion Factor."
+      ]
+    },
+    "binary": {
+      "tag": "RAWIMUSB",
+      "id": 325,
+      "name": "Raw IMU (Short Header Binary)",
+      "description": "Short-header RAWIMU payload",
+      "log_command": "rawimusb",
+      "default_rate_hz": 0,
+      "on_new": true,
+      "payload_length": 40,
+      "fields": [
+        {
+          "name": "week",
+          "type": "uint32",
+          "note": "GNSS week."
+        },
+        {
+          "name": "seconds_of_week",
+          "type": "float64",
+          "unit": "s",
+          "note": "Seconds into week."
+        },
+        {
+          "name": "imu_status",
+          "type": "uint32",
+          "note": "IMU status (default 0)."
+        },
+        {
+          "name": "zA",
+          "type": "int32",
+          "note": "Z-axis acceleration variation (LSB)."
+        },
+        {
+          "name": "nyA",
+          "type": "int32",
+          "note": "-Y-axis acceleration variation (LSB)."
+        },
+        {
+          "name": "xA",
+          "type": "int32",
+          "note": "X-axis acceleration variation (LSB)."
+        },
+        {
+          "name": "zG",
+          "type": "int32",
+          "note": "Z-axis angular variation (LSB)."
+        },
+        {
+          "name": "nyG",
+          "type": "int32",
+          "note": "-Y-axis angular variation (LSB)."
+        },
+        {
+          "name": "xG",
+          "type": "int32",
+          "note": "X-axis angular variation (LSB)."
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "derived": [
+        {
+          "name": "acc_x_lsb",
+          "expr": "xA"
+        },
+        {
+          "name": "acc_y_lsb",
+          "expr": "-nyA"
+        },
+        {
+          "name": "acc_z_lsb",
+          "expr": "zA"
+        },
+        {
+          "name": "gyr_x_lsb",
+          "expr": "xG"
+        },
+        {
+          "name": "gyr_y_lsb",
+          "expr": "-nyG"
+        },
+        {
+          "name": "gyr_z_lsb",
+          "expr": "zG"
+        },
+        {
+          "name": "gyr_x_dps",
+          "unit": "deg/s",
+          "expr": "xG * 1.52587890625e-05"
+        },
+        {
+          "name": "gyr_y_dps",
+          "unit": "deg/s",
+          "expr": "(-nyG) * 1.52587890625e-05"
+        },
+        {
+          "name": "gyr_z_dps",
+          "unit": "deg/s",
+          "expr": "zG * 1.52587890625e-05"
+        },
+        {
+          "name": "acc_x_ms2",
+          "unit": "m/s^2",
+          "expr": "xA * 7.48188018798828e-06"
+        },
+        {
+          "name": "acc_y_ms2",
+          "unit": "m/s^2",
+          "expr": "(-nyA) * 7.48188018798828e-06"
+        },
+        {
+          "name": "acc_z_ms2",
+          "unit": "m/s^2",
+          "expr": "zA * 7.48188018798828e-06"
+        },
+        {
+          "name": "dtheta_deg",
+          "unit": "deg",
+          "expr": "(xG * 1.52587890625e-07, (-nyG) * 1.52587890625e-07, zG * 1.52587890625e-07)",
+          "note": "Delta angle (X,Y,Z)"
+        },
+        {
+          "name": "dvel_mps",
+          "unit": "m/s",
+          "expr": "(xA * 7.48188018798828e-08, (-nyA) * 7.48188018798828e-08, zA * 7.48188018798828e-08)",
+          "note": "Delta velocity (X,Y,Z)"
+        }
+      ],
+      "notes": [
+        "Binary companion for RAWIMUSA (message ID 325).",
+        "Payload uses the IMU short header format; CRC handled separately."
+      ]
+    }
+  },
+  "RAWIMUSX": {
+    "label": "Raw IMU Extended (Short Header)",
+    "description": "Extended short-header IMU raw data with IMU type information.",
+    "ascii": {
+      "tag": "RAWIMUSXA",
+      "name": "RAWIMUSX (ASCII)",
+      "description": "Extended RAWIMU short header (ASCII)",
+      "log_command": "rawimusxa",
+      "default_rate_hz": 0,
+      "on_new": true,
+      "aliases": [
+        "%RAWIMUSXA",
+        "RAWIMUSXA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "imu_info",
+          "type": "int",
+          "note": "Bit0: IMU error, Bit1: IMU encrypted, Bit2-7 reserved."
+        },
+        {
+          "index": 2,
+          "name": "imu_type",
+          "type": "int",
+          "note": "IMU type; see Table 4-17 IMU Type.",
+          "note_table": "table_4_17_imu_type"
+        },
+        {
+          "index": 3,
+          "name": "week",
+          "type": "int",
+          "note": "GNSS week."
+        },
+        {
+          "index": 4,
+          "name": "seconds_of_week",
+          "type": "float",
+          "unit": "s",
+          "note": "Seconds into week."
+        },
+        {
+          "index": 5,
+          "name": "imu_status",
+          "type": "int",
+          "note": "IMU status (default 0)."
+        },
+        {
+          "index": 6,
+          "name": "zA",
+          "type": "int",
+          "note": "Z-axis acceleration variation (LSB)."
+        },
+        {
+          "index": 7,
+          "name": "nyA",
+          "type": "int",
+          "note": "-Y-axis acceleration variation (LSB)."
+        },
+        {
+          "index": 8,
+          "name": "xA",
+          "type": "int",
+          "note": "X-axis acceleration variation (LSB)."
+        },
+        {
+          "index": 9,
+          "name": "zG",
+          "type": "int",
+          "note": "Z-axis angular variation (LSB)."
+        },
+        {
+          "index": 10,
+          "name": "nyG",
+          "type": "int",
+          "note": "-Y-axis angular variation (LSB)."
+        },
+        {
+          "index": 11,
+          "name": "xG",
+          "type": "int",
+          "note": "X-axis angular variation (LSB)."
+        },
+        {
+          "index": 12,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Includes IMU info/type fields; remaining payload matches RAWIMUS.",
+        "LSB conversion uses Table 4-16 factors."
+      ]
+    },
+    "binary": {
+      "tag": "RAWIMUSXB",
+      "id": 1462,
+      "name": "Raw IMU Extended (Short Header Binary)",
+      "description": "Extended RAWIMU short-header payload",
+      "log_command": "rawimusxb",
+      "default_rate_hz": 0,
+      "on_new": true,
+      "payload_length": 44,
+      "fields": [
+        {
+          "name": "imu_info",
+          "type": "uint8",
+          "note": "Bit0: IMU error, Bit1: IMU encrypted, Bit2-7 reserved."
+        },
+        {
+          "name": "imu_type",
+          "type": "uint8",
+          "note": "IMU type; see Table 4-17 IMU Type.",
+          "note_table": "table_4_17_imu_type"
+        },
+        {
+          "name": "week",
+          "type": "uint16",
+          "note": "GNSS week."
+        },
+        {
+          "name": "seconds_of_week",
+          "type": "float64",
+          "unit": "s",
+          "note": "Seconds into week."
+        },
+        {
+          "name": "imu_status",
+          "type": "uint32",
+          "note": "IMU status (default 0)."
+        },
+        {
+          "name": "zA",
+          "type": "int32",
+          "note": "Z-axis acceleration variation (LSB)."
+        },
+        {
+          "name": "nyA",
+          "type": "int32",
+          "note": "-Y-axis acceleration variation (LSB)."
+        },
+        {
+          "name": "xA",
+          "type": "int32",
+          "note": "X-axis acceleration variation (LSB)."
+        },
+        {
+          "name": "zG",
+          "type": "int32",
+          "note": "Z-axis angular variation (LSB)."
+        },
+        {
+          "name": "nyG",
+          "type": "int32",
+          "note": "-Y-axis angular variation (LSB)."
+        },
+        {
+          "name": "xG",
+          "type": "int32",
+          "note": "X-axis angular variation (LSB)."
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "derived": [
+        {
+          "name": "acc_x_lsb",
+          "expr": "xA"
+        },
+        {
+          "name": "acc_y_lsb",
+          "expr": "-nyA"
+        },
+        {
+          "name": "acc_z_lsb",
+          "expr": "zA"
+        },
+        {
+          "name": "gyr_x_lsb",
+          "expr": "xG"
+        },
+        {
+          "name": "gyr_y_lsb",
+          "expr": "-nyG"
+        },
+        {
+          "name": "gyr_z_lsb",
+          "expr": "zG"
+        },
+        {
+          "name": "gyr_x_dps",
+          "unit": "deg/s",
+          "expr": "xG * 1.52587890625e-05"
+        },
+        {
+          "name": "gyr_y_dps",
+          "unit": "deg/s",
+          "expr": "(-nyG) * 1.52587890625e-05"
+        },
+        {
+          "name": "gyr_z_dps",
+          "unit": "deg/s",
+          "expr": "zG * 1.52587890625e-05"
+        },
+        {
+          "name": "acc_x_ms2",
+          "unit": "m/s^2",
+          "expr": "xA * 7.48188018798828e-06"
+        },
+        {
+          "name": "acc_y_ms2",
+          "unit": "m/s^2",
+          "expr": "(-nyA) * 7.48188018798828e-06"
+        },
+        {
+          "name": "acc_z_ms2",
+          "unit": "m/s^2",
+          "expr": "zA * 7.48188018798828e-06"
+        },
+        {
+          "name": "dtheta_deg",
+          "unit": "deg",
+          "expr": "(xG * 1.52587890625e-07, (-nyG) * 1.52587890625e-07, zG * 1.52587890625e-07)",
+          "note": "Delta angle (X,Y,Z)"
+        },
+        {
+          "name": "dvel_mps",
+          "unit": "m/s",
+          "expr": "(xA * 7.48188018798828e-08, (-nyA) * 7.48188018798828e-08, zA * 7.48188018798828e-08)",
+          "note": "Delta velocity (X,Y,Z)"
+        }
+      ],
+      "notes": [
+        "Binary companion for RAWIMUSXA (message ID 1462).",
+        "Extends RAWIMUS with IMU info/type metadata before the sample payload."
+      ]
+    }
+  },
+  "RAWIMUX": {
+    "label": "Raw IMU Extended (Long Header)",
+    "description": "Extended IMU raw observation data with IMU info/type (long header).",
+    "ascii": {
+      "tag": "RAWIMUXA",
+      "name": "RAWIMUX (ASCII)",
+      "description": "Extended RAWIMU long header (ASCII)",
+      "log_command": "rawimuxa",
+      "default_rate_hz": 0,
+      "on_new": true,
+      "aliases": [
+        "#RAWIMUXA",
+        "RAWIMUXA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "imu_info",
+          "type": "int",
+          "note": "Bit0: IMU error, Bit1: IMU encrypted, Bit2-7 reserved."
+        },
+        {
+          "index": 2,
+          "name": "imu_type",
+          "type": "int",
+          "note": "IMU type; see Table 4-17 IMU Type.",
+          "note_table": "table_4_17_imu_type"
+        },
+        {
+          "index": 3,
+          "name": "week",
+          "type": "int",
+          "note": "GNSS week."
+        },
+        {
+          "index": 4,
+          "name": "seconds_of_week",
+          "type": "float",
+          "unit": "s",
+          "note": "Seconds into week."
+        },
+        {
+          "index": 5,
+          "name": "imu_status",
+          "type": "int",
+          "note": "IMU status (default 0)."
+        },
+        {
+          "index": 6,
+          "name": "zA",
+          "type": "int",
+          "note": "Z-axis acceleration variation (LSB)."
+        },
+        {
+          "index": 7,
+          "name": "nyA",
+          "type": "int",
+          "note": "-Y-axis acceleration variation (LSB)."
+        },
+        {
+          "index": 8,
+          "name": "xA",
+          "type": "int",
+          "note": "X-axis acceleration variation (LSB)."
+        },
+        {
+          "index": 9,
+          "name": "zG",
+          "type": "int",
+          "note": "Z-axis angular variation (LSB)."
+        },
+        {
+          "index": 10,
+          "name": "nyG",
+          "type": "int",
+          "note": "-Y-axis angular variation (LSB)."
+        },
+        {
+          "index": 11,
+          "name": "xG",
+          "type": "int",
+          "note": "X-axis angular variation (LSB)."
+        },
+        {
+          "index": 12,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Extended RAWIMU with IMU info/type; long header framing.",
+        "LSB conversion uses Table 4-16 IMU Raw Data Conversion Factor."
+      ]
+    },
+    "binary": {
+      "tag": "RAWIMUXB",
+      "id": 1461,
+      "name": "Raw IMU Extended (Long Header Binary)",
+      "description": "Extended RAWIMU long-header payload",
+      "log_command": "rawimuxb",
+      "default_rate_hz": 0,
+      "on_new": true,
+      "payload_length": 44,
+      "fields": [
+        {
+          "name": "imu_info",
+          "type": "uint8",
+          "note": "Bit0: IMU error, Bit1: IMU encrypted, Bit2-7 reserved."
+        },
+        {
+          "name": "imu_type",
+          "type": "uint8",
+          "note": "IMU type; see Table 4-17 IMU Type.",
+          "note_table": "table_4_17_imu_type"
+        },
+        {
+          "name": "week",
+          "type": "uint16",
+          "note": "GNSS week."
+        },
+        {
+          "name": "seconds_of_week",
+          "type": "float64",
+          "unit": "s",
+          "note": "Seconds into week."
+        },
+        {
+          "name": "imu_status",
+          "type": "uint32",
+          "note": "IMU status (default 0)."
+        },
+        {
+          "name": "zA",
+          "type": "int32",
+          "note": "Z-axis acceleration variation (LSB)."
+        },
+        {
+          "name": "nyA",
+          "type": "int32",
+          "note": "-Y-axis acceleration variation (LSB)."
+        },
+        {
+          "name": "xA",
+          "type": "int32",
+          "note": "X-axis acceleration variation (LSB)."
+        },
+        {
+          "name": "zG",
+          "type": "int32",
+          "note": "Z-axis angular variation (LSB)."
+        },
+        {
+          "name": "nyG",
+          "type": "int32",
+          "note": "-Y-axis angular variation (LSB)."
+        },
+        {
+          "name": "xG",
+          "type": "int32",
+          "note": "X-axis angular variation (LSB)."
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "derived": [
+        {
+          "name": "acc_x_lsb",
+          "expr": "xA"
+        },
+        {
+          "name": "acc_y_lsb",
+          "expr": "-nyA"
+        },
+        {
+          "name": "acc_z_lsb",
+          "expr": "zA"
+        },
+        {
+          "name": "gyr_x_lsb",
+          "expr": "xG"
+        },
+        {
+          "name": "gyr_y_lsb",
+          "expr": "-nyG"
+        },
+        {
+          "name": "gyr_z_lsb",
+          "expr": "zG"
+        },
+        {
+          "name": "gyr_x_dps",
+          "unit": "deg/s",
+          "expr": "xG * 1.52587890625e-05"
+        },
+        {
+          "name": "gyr_y_dps",
+          "unit": "deg/s",
+          "expr": "(-nyG) * 1.52587890625e-05"
+        },
+        {
+          "name": "gyr_z_dps",
+          "unit": "deg/s",
+          "expr": "zG * 1.52587890625e-05"
+        },
+        {
+          "name": "acc_x_ms2",
+          "unit": "m/s^2",
+          "expr": "xA * 7.48188018798828e-06"
+        },
+        {
+          "name": "acc_y_ms2",
+          "unit": "m/s^2",
+          "expr": "(-nyA) * 7.48188018798828e-06"
+        },
+        {
+          "name": "acc_z_ms2",
+          "unit": "m/s^2",
+          "expr": "zA * 7.48188018798828e-06"
+        },
+        {
+          "name": "dtheta_deg",
+          "unit": "deg",
+          "expr": "(xG * 1.52587890625e-07, (-nyG) * 1.52587890625e-07, zG * 1.52587890625e-07)",
+          "note": "Delta angle (X,Y,Z)"
+        },
+        {
+          "name": "dvel_mps",
+          "unit": "m/s",
+          "expr": "(xA * 7.48188018798828e-08, (-nyA) * 7.48188018798828e-08, zA * 7.48188018798828e-08)",
+          "note": "Delta velocity (X,Y,Z)"
+        }
+      ],
+      "notes": [
+        "Binary companion for RAWIMUXA (message ID 1461).",
+        "Long header framing; payload matches RAWIMUSX field order."
+      ]
+    }
+  },
+  "CORRIMUDATA": {
+    "label": "Corrected IMU",
+    "description": "Corrected IMU deltas.",
+    "ascii": {
+      "tag": "CORRIMUDATAA",
+      "name": "Corrected IMU (ASCII)",
+      "description": "Corrected IMU data corrected for gravity / rotation",
+      "log_command": "corrimudataa",
+      "default_rate_hz": 0,
+      "on_new": true,
+      "aliases": [
+        "#CORRIMUDATAA",
+        "CORRIMUDATAA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "week",
+          "type": "int",
+          "note": "GNSS week."
+        },
+        {
+          "index": 2,
+          "name": "seconds_of_week",
+          "type": "float",
+          "unit": "s",
+          "note": "GNSS seconds from week start (s)."
+        },
+        {
+          "index": 3,
+          "name": "pitch_rate_rad",
+          "type": "float",
+          "unit": "rad",
+          "note": "Pitch rate about X-axis (rad/sample)."
+        },
+        {
+          "index": 4,
+          "name": "roll_rate_rad",
+          "type": "float",
+          "unit": "rad",
+          "note": "Roll rate about Y-axis (rad/sample)."
+        },
+        {
+          "index": 5,
+          "name": "yaw_rate_rad",
+          "type": "float",
+          "unit": "rad",
+          "note": "Yaw rate about Z-axis (rad/sample)."
+        },
+        {
+          "index": 6,
+          "name": "lateral_acc",
+          "type": "float",
+          "unit": "m/s^2",
+          "note": "INS lateral acceleration along X-axis (m/s/sample)."
+        },
+        {
+          "index": 7,
+          "name": "longitudinal_acc",
+          "type": "float",
+          "unit": "m/s^2",
+          "note": "INS longitudinal acceleration along Y-axis (m/s/sample)."
+        },
+        {
+          "index": 8,
+          "name": "vertical_acc",
+          "type": "float",
+          "unit": "m/s^2",
+          "note": "INS vertical acceleration along Z-axis (m/s/sample)."
+        },
+        {
+          "index": 9,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "ONNEW only; values are incremental per sample (rad/sample, m/s per sample).",
+        "CRC is the ASCII log trailer."
+      ]
+    },
+    "binary": {
+      "tag": "CORRIMUDATAB",
+      "id": 812,
+      "name": "Corrected IMU",
+      "description": "Corrected IMU Data",
+      "log_command": "corrimudatab",
+      "default_rate_hz": 0,
+      "on_new": true,
+      "payload_length": 56,
+      "fields": [
+        {
+          "name": "week",
+          "type": "uint32",
+          "note": "GNSS week."
+        },
+        {
+          "name": "tow_s",
+          "type": "float64",
+          "unit": "s",
+          "note": "GNSS seconds from week start (s)."
+        },
+        {
+          "name": "pitch_rate_rad",
+          "type": "float64",
+          "unit": "rad",
+          "note": "Pitch rate about X-axis (rad/sample)."
+        },
+        {
+          "name": "roll_rate_rad",
+          "type": "float64",
+          "unit": "rad",
+          "note": "Roll rate about Y-axis (rad/sample)."
+        },
+        {
+          "name": "yaw_rate_rad",
+          "type": "float64",
+          "unit": "rad",
+          "note": "Yaw rate about Z-axis (rad/sample)."
+        },
+        {
+          "name": "lateral_acc",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "INS lateral acceleration along X-axis (m/s/sample)."
+        },
+        {
+          "name": "longitudinal_acc",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "INS longitudinal acceleration along Y-axis (m/s/sample)."
+        },
+        {
+          "name": "vertical_acc",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "INS vertical acceleration along Z-axis (m/s/sample)."
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "derived": [
+        {
+          "name": "dtheta_rad",
+          "unit": "rad",
+          "expr": "(pitch_rate_rad, roll_rate_rad, yaw_rate_rad)",
+          "note": "\u0394\u03b8 about X/Y/Z"
+        },
+        {
+          "name": "dvel_mps",
+          "unit": "m/s",
+          "expr": "(lateral_acc, longitudinal_acc, vertical_acc)",
+          "note": "\u0394v components"
+        }
+      ],
+      "notes": [
+        "Already corrected for coning/sculling.",
+        "Rates/accelerations integrate over the log interval."
+      ]
+    }
+  },
+  "CORRIMUDATAS": {
+    "label": "Corrected IMU (Short Header)",
+    "description": "Short header version of CORRIMUDATA (ONNEW).",
+    "ascii": {
+      "tag": "CORRIMUDATASA",
+      "name": "Corrected IMU Short (ASCII)",
+      "description": "Short header CORRIMUDATA (ASCII)",
+      "log_command": "corrimudatasa",
+      "default_rate_hz": 0,
+      "on_new": true,
+      "aliases": [
+        "%CORRIMUDATASA",
+        "CORRIMUDATASA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "week",
+          "type": "int",
+          "note": "GNSS week."
+        },
+        {
+          "index": 2,
+          "name": "seconds_of_week",
+          "type": "float",
+          "unit": "s",
+          "note": "GNSS seconds from week start (s)."
+        },
+        {
+          "index": 3,
+          "name": "pitch_rate_rad",
+          "type": "float",
+          "unit": "rad",
+          "note": "Pitch rate about X-axis (rad/sample)."
+        },
+        {
+          "index": 4,
+          "name": "roll_rate_rad",
+          "type": "float",
+          "unit": "rad",
+          "note": "Roll rate about Y-axis (rad/sample)."
+        },
+        {
+          "index": 5,
+          "name": "yaw_rate_rad",
+          "type": "float",
+          "unit": "rad",
+          "note": "Yaw rate about Z-axis (rad/sample)."
+        },
+        {
+          "index": 6,
+          "name": "lateral_acc",
+          "type": "float",
+          "unit": "m/s^2",
+          "note": "INS lateral acceleration along X-axis (m/s/sample)."
+        },
+        {
+          "index": 7,
+          "name": "longitudinal_acc",
+          "type": "float",
+          "unit": "m/s^2",
+          "note": "INS longitudinal acceleration along Y-axis (m/s/sample)."
+        },
+        {
+          "index": 8,
+          "name": "vertical_acc",
+          "type": "float",
+          "unit": "m/s^2",
+          "note": "INS vertical acceleration along Z-axis (m/s/sample)."
+        },
+        {
+          "index": 9,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Short header ASCII variant; use '%' prefix alias to match log sample.",
+        "Field order matches CORRIMUDATA."
+      ]
+    },
+    "binary": {
+      "tag": "CORRIMUDATASB",
+      "id": 813,
+      "name": "Corrected IMU Short",
+      "description": "Short header Corrected IMU Data",
+      "log_command": "corrimudatas",
+      "default_rate_hz": 0,
+      "on_new": true,
+      "payload_length": 60,
+      "fields": [
+        {
+          "name": "week",
+          "type": "uint32",
+          "note": "GNSS week."
+        },
+        {
+          "name": "tow_s",
+          "type": "float64",
+          "unit": "s",
+          "note": "GNSS seconds from week start (s)."
+        },
+        {
+          "name": "pitch_rate_rad",
+          "type": "float64",
+          "unit": "rad",
+          "note": "Pitch rate about X-axis (rad/sample)."
+        },
+        {
+          "name": "roll_rate_rad",
+          "type": "float64",
+          "unit": "rad",
+          "note": "Roll rate about Y-axis (rad/sample)."
+        },
+        {
+          "name": "yaw_rate_rad",
+          "type": "float64",
+          "unit": "rad",
+          "note": "Yaw rate about Z-axis (rad/sample)."
+        },
+        {
+          "name": "lateral_acc",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "INS lateral acceleration along X-axis (m/s/sample)."
+        },
+        {
+          "name": "longitudinal_acc",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "INS longitudinal acceleration along Y-axis (m/s/sample)."
+        },
+        {
+          "name": "vertical_acc",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "INS vertical acceleration along Z-axis (m/s/sample)."
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "notes": [
+        "Short header framing; payload matches CORRIMUDATA values.",
+        "LSB conversion uses Table 4-16 factors."
+      ]
+    },
+    "notes": [
+      "Short header variant of CORRIMUDATA (ONNEW only).",
+      "Values are incremental per sample in rad/sample and m/s per sample."
+    ]
+  },
+  "EFUSEID": {
+    "label": "EFUSE ID",
+    "description": "Outputs the device EFUSE identifier.",
+    "ascii": {
+      "tag": "EFUSEIDA",
+      "name": "EFUSE ID (ASCII)",
+      "description": "EFUSE ID ASCII log",
+      "log_command": "efuseida",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#EFUSEIDA",
+        "EFUSEIDA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "efuse_id",
+          "type": "str"
+        },
+        {
+          "index": 2,
+          "name": "crc_hex",
+          "type": "str"
+        }
+      ],
+      "notes": [
+        "EFUSE ID is reported as a hexadecimal string.",
+        "CRC is appended as part of the ASCII log terminator."
+      ]
+    },
+    "binary": {
+      "tag": "EFUSEIDB",
+      "id": 10091,
+      "name": "EFUSE ID (Binary)",
+      "description": "EFUSE ID binary log",
+      "log_command": "efuseidb",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "payload_length": 8,
+      "fields": [
+        {
+          "name": "efuse_id",
+          "type": "char",
+          "length": 8,
+          "strip": false
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc"
+        }
+      ],
+      "notes": [
+        "8-byte EFUSE identifier; CRC is handled by the transport frame."
+      ]
+    }
+  },
+  "INSATT": {
+    "label": "INS Attitude",
+    "description": "Outputs INS attitude (roll, pitch, azimuth).",
+    "ascii": {
+      "tag": "INSATTA",
+      "name": "INS Attitude (ASCII)",
+      "description": "INS attitude values (ASCII)",
+      "log_command": "insatta",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#INSATTA",
+        "INSATTA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "week",
+          "type": "int",
+          "note": "GNSS week."
+        },
+        {
+          "index": 2,
+          "name": "seconds_of_week",
+          "type": "float",
+          "unit": "s",
+          "note": "GNSS seconds from week start (s)."
+        },
+        {
+          "index": 3,
+          "name": "roll_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Roll angle (deg)."
+        },
+        {
+          "index": 4,
+          "name": "pitch_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Pitch angle (deg)."
+        },
+        {
+          "index": 5,
+          "name": "azimuth_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Azimuth/heading (deg)."
+        },
+        {
+          "index": 6,
+          "name": "status",
+          "type": "str",
+          "note": "INS solution status; see Table 4-8 INS Status.",
+          "note_table": "table_4_8_ins_status"
+        },
+        {
+          "index": 7,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Angles are referenced to the ENU frame unless a custom frame is defined."
+      ]
+    },
+    "binary": {
+      "tag": "INSATTB",
+      "id": 263,
+      "name": "INS Attitude (Binary)",
+      "description": "INS attitude values (binary)",
+      "log_command": "insattb",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "payload_length": 40,
+      "fields": [
+        {
+          "name": "week",
+          "type": "uint32",
+          "note": "GNSS week."
+        },
+        {
+          "name": "seconds_of_week",
+          "type": "float64",
+          "unit": "s"
+        },
+        {
+          "name": "roll_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Roll angle (deg)."
+        },
+        {
+          "name": "pitch_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Pitch angle (deg)."
+        },
+        {
+          "name": "azimuth_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Azimuth/heading (deg)."
+        },
+        {
+          "name": "status",
+          "type": "uint32",
+          "note": "See Table 4-8 INS Status",
+          "note_table": "table_4_8_ins_status"
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "notes": [
+        "Status enum matches the ASCII INS status strings."
+      ]
+    }
+  },
+  "INSCALSTATUS": {
+    "label": "INS Calibration Status",
+    "description": "Outputs IMU calibration offsets and estimated uncertainties.",
+    "ascii": {
+      "tag": "INSCALSTATUSA",
+      "name": "INS Calibration Status (ASCII)",
+      "description": "INS calibration offsets (ASCII)",
+      "log_command": "inscalstatusa",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#INSCALSTATUSA",
+        "INSCALSTATUSA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "offset_type",
+          "type": "str",
+          "note": "Offset type; see Table 4-9 Offset Type.",
+          "note_table": "table_4_9_offset_type"
+        },
+        {
+          "index": 2,
+          "name": "x_axis_offset",
+          "type": "float",
+          "unit": "m/\u00b0",
+          "note": "Offset of X-axis of IMU body frame (m/\u00b0)."
+        },
+        {
+          "index": 3,
+          "name": "y_axis_offset",
+          "type": "float",
+          "unit": "m/\u00b0",
+          "note": "Offset of Y-axis of IMU body frame (m/\u00b0)."
+        },
+        {
+          "index": 4,
+          "name": "z_axis_offset",
+          "type": "float",
+          "unit": "m/\u00b0",
+          "note": "Offset of Z-axis of IMU body frame (m/\u00b0)."
+        },
+        {
+          "index": 5,
+          "name": "x_uncertainty",
+          "type": "float",
+          "unit": "m/\u00b0"
+        },
+        {
+          "index": 6,
+          "name": "y_uncertainty",
+          "type": "float",
+          "unit": "m/\u00b0"
+        },
+        {
+          "index": 7,
+          "name": "z_uncertainty",
+          "type": "float",
+          "unit": "m/\u00b0"
+        },
+        {
+          "index": 8,
+          "name": "source_status",
+          "type": "str",
+          "note": "Data source; see Table 4-10 Data Source.",
+          "note_table": "table_4_10_data_source"
+        },
+        {
+          "index": 9,
+          "name": "calibration_count",
+          "type": "int",
+          "note": "Calibration count."
+        },
+        {
+          "index": 10,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Offset and uncertainty values are reported in the IMU body frame.",
+        "Source status indicates how the calibration was obtained."
+      ]
+    },
+    "binary": {
+      "tag": "INSCALSTATUSB",
+      "id": 1961,
+      "name": "INS Calibration Status (Binary)",
+      "description": "INS calibration offsets (binary)",
+      "log_command": "inscalstatusb",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "payload_length": 36,
+      "fields": [
+        {
+          "name": "offset_type",
+          "type": "uint32",
+          "note": "Offset type; see Table 4-9 Offset Type.",
+          "note_table": "table_4_9_offset_type"
+        },
+        {
+          "name": "x_axis_offset",
+          "type": "float32",
+          "unit": "m/\u00b0",
+          "note": "Offset of X-axis of IMU body frame (m/\u00b0)."
+        },
+        {
+          "name": "y_axis_offset",
+          "type": "float32",
+          "unit": "m/\u00b0",
+          "note": "Offset of Y-axis of IMU body frame (m/\u00b0)."
+        },
+        {
+          "name": "z_axis_offset",
+          "type": "float32",
+          "unit": "m/\u00b0",
+          "note": "Offset of Z-axis of IMU body frame (m/\u00b0)."
+        },
+        {
+          "name": "x_uncertainty",
+          "type": "float32",
+          "unit": "m/\u00b0"
+        },
+        {
+          "name": "y_uncertainty",
+          "type": "float32",
+          "unit": "m/\u00b0"
+        },
+        {
+          "name": "z_uncertainty",
+          "type": "float32",
+          "unit": "m/\u00b0"
+        },
+        {
+          "name": "source_status",
+          "type": "uint32",
+          "note": "Data source; see Table 4-10 Data Source.",
+          "note_table": "table_4_10_data_source"
+        },
+        {
+          "name": "calibration_count",
+          "type": "uint32",
+          "note": "Calibration count."
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "notes": [
+        "Binary payload mirrors the ASCII fields using numeric enums/values."
+      ]
+    }
+  },
+  "INSPOS": {
+    "label": "INS Position",
+    "description": "Outputs INS-derived position in WGS84 coordinates.",
+    "ascii": {
+      "tag": "INSPOSA",
+      "name": "INS Position (ASCII)",
+      "description": "INS position (ASCII)",
+      "log_command": "insposa",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#INSPOSA",
+        "INSPOSA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "week",
+          "type": "int",
+          "note": "GNSS week."
+        },
+        {
+          "index": 2,
+          "name": "seconds_of_week",
+          "type": "float",
+          "unit": "s",
+          "note": "GNSS seconds into week (s)."
+        },
+        {
+          "index": 3,
+          "name": "latitude_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Latitude (deg)."
+        },
+        {
+          "index": 4,
+          "name": "longitude_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Longitude (deg)."
+        },
+        {
+          "index": 5,
+          "name": "height_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Ellipsoidal height (m)."
+        },
+        {
+          "index": 6,
+          "name": "status",
+          "type": "str",
+          "note": "INS solution status; see Table 4-8 INS Status.",
+          "note_table": "table_4_8_ins_status"
+        },
+        {
+          "index": 7,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Default output origin is the navigation center unless a user-defined point is set."
+      ]
+    },
+    "binary": {
+      "tag": "INSPOSB",
+      "id": 265,
+      "name": "INS Position (Binary)",
+      "description": "INS position (binary)",
+      "log_command": "insposb",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "payload_length": 40,
+      "fields": [
+        {
+          "name": "week",
+          "type": "uint32",
+          "note": "GNSS week."
+        },
+        {
+          "name": "seconds_of_week",
+          "type": "float64",
+          "unit": "s",
+          "note": "GNSS seconds into week (s)."
+        },
+        {
+          "name": "latitude_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Latitude (deg)."
+        },
+        {
+          "name": "longitude_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Longitude (deg)."
+        },
+        {
+          "name": "height_m",
+          "type": "float64",
+          "unit": "m",
+          "note": "Ellipsoidal height (m)."
+        },
+        {
+          "name": "status",
+          "type": "uint32",
+          "note": "INS solution status; see Table 4-8 INS Status.",
+          "note_table": "table_4_8_ins_status"
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "notes": [
+        "Status enum is identical to INSATT/INSPOS ASCII status strings."
+      ]
+    }
+  },
+  "INSPTNLPJKS": {
+    "label": "INS Projected IMU Output",
+    "description": "IMU data after correction/projection (no binary support).",
+    "ascii": {
+      "tag": "INSPTNLPJKSA",
+      "name": "INS Projected IMU (ASCII)",
+      "description": "IMU data corrected for gravity, rotation and projected into plane coordinates.",
+      "log_command": "insptnlpjksa",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "%INSPTNLPJKSA",
+        "INSPTNLPJKSA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "week",
+          "type": "int",
+          "note": "GNSS week."
+        },
+        {
+          "index": 2,
+          "name": "seconds_of_week",
+          "type": "float",
+          "unit": "s",
+          "note": "GNSS seconds into week (s)."
+        },
+        {
+          "index": 3,
+          "name": "position_type",
+          "type": "str",
+          "note": "Position type; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "index": 4,
+          "name": "ins_status",
+          "type": "str",
+          "note": "INS solution status; see Table 4-8 INS Status.",
+          "note_table": "table_4_8_ins_status"
+        },
+        {
+          "index": 5,
+          "name": "accel_x_ms2",
+          "type": "float",
+          "unit": "m/s/sample",
+          "note": "X-axis acceleration variation (m/s/sample)."
+        },
+        {
+          "index": 6,
+          "name": "accel_y_ms2",
+          "type": "float",
+          "unit": "m/s/sample",
+          "note": "Y-axis acceleration variation (m/s/sample)."
+        },
+        {
+          "index": 7,
+          "name": "accel_z_ms2",
+          "type": "float",
+          "unit": "m/s/sample",
+          "note": "Z-axis acceleration variation (m/s/sample)."
+        },
+        {
+          "index": 8,
+          "name": "pitch_rate_rad",
+          "type": "float",
+          "unit": "rad/sample",
+          "note": "X-axis angle variation (rad/sample)."
+        },
+        {
+          "index": 9,
+          "name": "roll_rate_rad",
+          "type": "float",
+          "unit": "rad/sample",
+          "note": "Y-axis angle variation (rad/sample)."
+        },
+        {
+          "index": 10,
+          "name": "yaw_rate_rad",
+          "type": "float",
+          "unit": "rad/sample",
+          "note": "Z-axis angle variation (rad/sample)."
+        },
+        {
+          "index": 11,
+          "name": "latitude_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Latitude (deg)."
+        },
+        {
+          "index": 12,
+          "name": "longitude_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Longitude (deg)."
+        },
+        {
+          "index": 13,
+          "name": "height_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Height above sea level (m)."
+        },
+        {
+          "index": 14,
+          "name": "position_x_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Projected X position (m)."
+        },
+        {
+          "index": 15,
+          "name": "position_y_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Projected Y position (m)."
+        },
+        {
+          "index": 16,
+          "name": "geodetic_height_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Geodetic height (m)."
+        },
+        {
+          "index": 17,
+          "name": "north_velocity_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "North velocity (m/s)."
+        },
+        {
+          "index": 18,
+          "name": "east_velocity_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "East velocity (m/s)."
+        },
+        {
+          "index": 19,
+          "name": "down_velocity_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "Down velocity (m/s)."
+        },
+        {
+          "index": 20,
+          "name": "heading_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Heading angle (deg)."
+        },
+        {
+          "index": 21,
+          "name": "pitch_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Pitch angle (deg)."
+        },
+        {
+          "index": 22,
+          "name": "roll_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Roll angle (deg)."
+        },
+        {
+          "index": 23,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Binary version is not supported (message ID 0).",
+        "Projection parameters are configured via JPKPARA."
+      ]
+    }
+  },
+  "INSPVA": {
+    "label": "INS Position/Velocity/Attitude",
+    "description": "Outputs INS position, velocity and attitude.",
+    "ascii": {
+      "tag": "INSPVAA",
+      "name": "INS PVA (ASCII)",
+      "description": "INS position/velocity/attitude (ASCII)",
+      "log_command": "inspvaa",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#INSPVAA",
+        "INSPVAA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "week",
+          "type": "int",
+          "note": "GNSS week."
+        },
+        {
+          "index": 2,
+          "name": "seconds_of_week",
+          "type": "float",
+          "unit": "s",
+          "note": "GNSS seconds into week (s)."
+        },
+        {
+          "index": 3,
+          "name": "latitude_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Latitude (deg)."
+        },
+        {
+          "index": 4,
+          "name": "longitude_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Longitude (deg)."
+        },
+        {
+          "index": 5,
+          "name": "height_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Ellipsoidal height (m)."
+        },
+        {
+          "index": 6,
+          "name": "north_velocity_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "North velocity (m/s)."
+        },
+        {
+          "index": 7,
+          "name": "east_velocity_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "East velocity (m/s)."
+        },
+        {
+          "index": 8,
+          "name": "up_velocity_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "Up velocity (m/s)."
+        },
+        {
+          "index": 9,
+          "name": "roll_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Roll (deg)."
+        },
+        {
+          "index": 10,
+          "name": "pitch_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Pitch (deg)."
+        },
+        {
+          "index": 11,
+          "name": "azimuth_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Azimuth (deg)."
+        },
+        {
+          "index": 12,
+          "name": "status",
+          "type": "str",
+          "note": "INS solution status; see Table 4-8 INS Status.",
+          "note_table": "table_4_8_ins_status"
+        },
+        {
+          "index": 13,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Position is WGS84, velocities in body-aligned ENU frame, attitude in degrees."
+      ]
+    },
+    "binary": {
+      "tag": "INSPVAB",
+      "id": 507,
+      "name": "INS PVA (Binary)",
+      "description": "INS position/velocity/attitude (binary)",
+      "log_command": "inspvab",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "payload_length": 88,
+      "fields": [
+        {
+          "name": "week",
+          "type": "uint32",
+          "note": "GNSS week."
+        },
+        {
+          "name": "seconds_of_week",
+          "type": "float64",
+          "unit": "s",
+          "note": "GNSS seconds into week (s)."
+        },
+        {
+          "name": "latitude_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Latitude (deg)."
+        },
+        {
+          "name": "longitude_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Longitude (deg)."
+        },
+        {
+          "name": "height_m",
+          "type": "float64",
+          "unit": "m",
+          "note": "Ellipsoidal height (m)."
+        },
+        {
+          "name": "north_velocity_ms",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "North velocity (m/s)."
+        },
+        {
+          "name": "east_velocity_ms",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "East velocity (m/s)."
+        },
+        {
+          "name": "up_velocity_ms",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "Up velocity (m/s)."
+        },
+        {
+          "name": "roll_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Roll (deg)."
+        },
+        {
+          "name": "pitch_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Pitch (deg)."
+        },
+        {
+          "name": "azimuth_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Azimuth (deg)."
+        },
+        {
+          "name": "status",
+          "type": "uint32",
+          "note": "INS solution status; see Table 4-8 INS Status.",
+          "note_table": "table_4_8_ins_status"
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "notes": [
+        "Binary payload mirrors ASCII fields; status is a numeric enum."
+      ]
+    }
+  },
+  "INSPVAS": {
+    "label": "INS Position/Velocity/Attitude (Short)",
+    "description": "Short header version of INSPVA.",
+    "ascii": {
+      "tag": "INSPVASA",
+      "name": "INS PVA Short (ASCII)",
+      "description": "Short header INSPVA (ASCII)",
+      "log_command": "inspvasa",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "%INSPVASA",
+        "INSPVASA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "week",
+          "type": "int",
+          "note": "GNSS week."
+        },
+        {
+          "index": 2,
+          "name": "seconds_of_week",
+          "type": "float",
+          "unit": "s",
+          "note": "GNSS seconds into week (s)."
+        },
+        {
+          "index": 3,
+          "name": "latitude_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Latitude (deg)."
+        },
+        {
+          "index": 4,
+          "name": "longitude_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Longitude (deg)."
+        },
+        {
+          "index": 5,
+          "name": "height_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Ellipsoidal height (m)."
+        },
+        {
+          "index": 6,
+          "name": "north_velocity_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "North velocity (m/s)."
+        },
+        {
+          "index": 7,
+          "name": "east_velocity_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "East velocity (m/s)."
+        },
+        {
+          "index": 8,
+          "name": "up_velocity_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "Up velocity (m/s)."
+        },
+        {
+          "index": 9,
+          "name": "roll_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Roll (deg)."
+        },
+        {
+          "index": 10,
+          "name": "pitch_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Pitch (deg)."
+        },
+        {
+          "index": 11,
+          "name": "azimuth_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Azimuth (deg)."
+        },
+        {
+          "index": 12,
+          "name": "status",
+          "type": "str",
+          "note": "INS solution status; see Table 4-8 INS Status.",
+          "note_table": "table_4_8_ins_status"
+        },
+        {
+          "index": 13,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Fields identical to INSPVA but uses short header framing."
+      ]
+    },
+    "binary": {
+      "tag": "INSPVASB",
+      "id": 508,
+      "name": "INS PVA Short (Binary)",
+      "description": "Short header INSPVA (binary)",
+      "log_command": "inspvasb",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "payload_length": 88,
+      "fields": [
+        {
+          "name": "week",
+          "type": "uint32",
+          "note": "GNSS week."
+        },
+        {
+          "name": "seconds_of_week",
+          "type": "float64",
+          "unit": "s",
+          "note": "GNSS seconds into week (s)."
+        },
+        {
+          "name": "latitude_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Latitude (deg)."
+        },
+        {
+          "name": "longitude_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Longitude (deg)."
+        },
+        {
+          "name": "height_m",
+          "type": "float64",
+          "unit": "m",
+          "note": "Ellipsoidal height (m)."
+        },
+        {
+          "name": "north_velocity_ms",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "North velocity (m/s)."
+        },
+        {
+          "name": "east_velocity_ms",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "East velocity (m/s)."
+        },
+        {
+          "name": "up_velocity_ms",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "Up velocity (m/s)."
+        },
+        {
+          "name": "roll_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Roll (deg)."
+        },
+        {
+          "name": "pitch_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Pitch (deg)."
+        },
+        {
+          "name": "azimuth_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Azimuth (deg)."
+        },
+        {
+          "name": "status",
+          "type": "uint32",
+          "note": "INS solution status; see Table 4-8 INS Status.",
+          "note_table": "table_4_8_ins_status"
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "notes": [
+        "Short header format only affects framing; payload is identical to INSPVA."
+      ]
+    }
+  },
+  "INSPVAX": {
+    "label": "INS Position/Velocity/Attitude + Std Dev",
+    "description": "Outputs PVA plus standard deviation metrics.",
+    "ascii": {
+      "tag": "INSPVAXA",
+      "name": "INS PVA StdDev (ASCII)",
+      "description": "INS PVA with standard deviations (ASCII)",
+      "log_command": "inspvaxa",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#INSPVAXA",
+        "INSPVAXA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "ins_status",
+          "type": "str",
+          "note": "INS solution status; see Table 4-8 INS Status.",
+          "note_table": "table_4_8_ins_status"
+        },
+        {
+          "index": 2,
+          "name": "position_type",
+          "type": "str",
+          "note": "Position type; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "index": 3,
+          "name": "latitude_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Latitude (deg)."
+        },
+        {
+          "index": 4,
+          "name": "longitude_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Longitude (deg)."
+        },
+        {
+          "index": 5,
+          "name": "height_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Ellipsoidal height (m)."
+        },
+        {
+          "index": 6,
+          "name": "undulation_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Geoid undulation (m)."
+        },
+        {
+          "index": 7,
+          "name": "north_velocity_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "North velocity (m/s)."
+        },
+        {
+          "index": 8,
+          "name": "east_velocity_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "East velocity (m/s)."
+        },
+        {
+          "index": 9,
+          "name": "up_velocity_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "Up velocity (m/s)."
+        },
+        {
+          "index": 10,
+          "name": "roll_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Roll (deg, -180..+180)."
+        },
+        {
+          "index": 11,
+          "name": "pitch_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Pitch (deg, -90..+90)."
+        },
+        {
+          "index": 12,
+          "name": "azimuth_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Azimuth (deg, 0..360)."
+        },
+        {
+          "index": 13,
+          "name": "lat_sigma",
+          "type": "float",
+          "unit": "m"
+        },
+        {
+          "index": 14,
+          "name": "lon_sigma",
+          "type": "float",
+          "unit": "m"
+        },
+        {
+          "index": 15,
+          "name": "height_sigma",
+          "type": "float",
+          "unit": "m"
+        },
+        {
+          "index": 16,
+          "name": "north_vel_sigma",
+          "type": "float",
+          "unit": "m/s"
+        },
+        {
+          "index": 17,
+          "name": "east_vel_sigma",
+          "type": "float",
+          "unit": "m/s"
+        },
+        {
+          "index": 18,
+          "name": "up_vel_sigma",
+          "type": "float",
+          "unit": "m/s"
+        },
+        {
+          "index": 19,
+          "name": "roll_sigma",
+          "type": "float",
+          "unit": "deg"
+        },
+        {
+          "index": 20,
+          "name": "pitch_sigma",
+          "type": "float",
+          "unit": "deg"
+        },
+        {
+          "index": 21,
+          "name": "azimuth_sigma",
+          "type": "float",
+          "unit": "deg"
+        },
+        {
+          "index": 22,
+          "name": "extended_status",
+          "type": "str",
+          "note": "See Table 4-11 INS Extended Status",
+          "note_table": "table_4_11_ins_extended_solution_status"
+        },
+        {
+          "index": 23,
+          "name": "time_since_update_s",
+          "type": "float",
+          "unit": "s",
+          "note": "Time since last update (s)."
+        },
+        {
+          "index": 24,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Adds 1-sigma standard deviations for position, velocity, and attitude components."
+      ]
+    },
+    "binary": {
+      "tag": "INSPVAXB",
+      "id": 1465,
+      "name": "INS PVA StdDev (Binary)",
+      "description": "INS PVA with standard deviations (binary)",
+      "log_command": "inspvaxb",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "payload_length": 136,
+      "fields": [
+        {
+          "name": "ins_status",
+          "type": "uint32",
+          "note": "INS solution status; see Table 4-8 INS Status.",
+          "note_table": "table_4_8_ins_status"
+        },
+        {
+          "name": "position_type",
+          "type": "uint32",
+          "note": "Position type; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "name": "latitude_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Latitude (deg)."
+        },
+        {
+          "name": "longitude_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Longitude (deg)."
+        },
+        {
+          "name": "height_m",
+          "type": "float64",
+          "unit": "m",
+          "note": "Ellipsoidal height (m)."
+        },
+        {
+          "name": "undulation_m",
+          "type": "float32",
+          "unit": "m",
+          "note": "Geoid undulation (m)."
+        },
+        {
+          "name": "north_velocity_ms",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "North velocity (m/s)."
+        },
+        {
+          "name": "east_velocity_ms",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "East velocity (m/s)."
+        },
+        {
+          "name": "up_velocity_ms",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "Up velocity (m/s)."
+        },
+        {
+          "name": "roll_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Roll (deg, -180..+180)."
+        },
+        {
+          "name": "pitch_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Pitch (deg, -90..+90)."
+        },
+        {
+          "name": "azimuth_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Azimuth (deg, 0..360)."
+        },
+        {
+          "name": "lat_sigma",
+          "type": "float32",
+          "unit": "m"
+        },
+        {
+          "name": "lon_sigma",
+          "type": "float32",
+          "unit": "m"
+        },
+        {
+          "name": "height_sigma",
+          "type": "float32",
+          "unit": "m"
+        },
+        {
+          "name": "north_vel_sigma",
+          "type": "float32",
+          "unit": "m/s"
+        },
+        {
+          "name": "east_vel_sigma",
+          "type": "float32",
+          "unit": "m/s"
+        },
+        {
+          "name": "up_vel_sigma",
+          "type": "float32",
+          "unit": "m/s"
+        },
+        {
+          "name": "roll_sigma",
+          "type": "float32",
+          "unit": "deg"
+        },
+        {
+          "name": "pitch_sigma",
+          "type": "float32",
+          "unit": "deg"
+        },
+        {
+          "name": "azimuth_sigma",
+          "type": "float32",
+          "unit": "deg"
+        },
+        {
+          "name": "extended_status",
+          "type": "uint32"
+        },
+        {
+          "name": "time_since_update_s",
+          "type": "uint16",
+          "unit": "s",
+          "note": "Time since last update (s)."
+        },
+        {
+          "name": "reserved0",
+          "type": "uint16"
+        },
+        {
+          "name": "reserved1",
+          "type": "uint32"
+        },
+        {
+          "name": "reserved2",
+          "type": "uint32"
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "notes": [
+        "Extended solution status uses Table 4-11 enumerations."
+      ]
+    }
+  },
+  "INSSPD": {
+    "label": "INS Speed",
+    "description": "Outputs horizontal and vertical speed plus track.",
+    "ascii": {
+      "tag": "INSSPDA",
+      "name": "INS Speed (ASCII)",
+      "description": "INS speed (ASCII)",
+      "log_command": "insspda",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#INSSPDA",
+        "INSSPDA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "week",
+          "type": "int",
+          "note": "GNSS week."
+        },
+        {
+          "index": 2,
+          "name": "seconds_of_week",
+          "type": "float",
+          "unit": "s",
+          "note": "GNSS seconds into week (s)."
+        },
+        {
+          "index": 3,
+          "name": "track_deg",
+          "type": "float",
+          "unit": "deg"
+        },
+        {
+          "index": 4,
+          "name": "horizontal_speed_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "Horizontal speed (m/s)."
+        },
+        {
+          "index": 5,
+          "name": "vertical_speed_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "Vertical speed (m/s)."
+        },
+        {
+          "index": 6,
+          "name": "status",
+          "type": "str",
+          "note": "INS solution status; see Table 4-8 INS Status.",
+          "note_table": "table_4_8_ins_status"
+        },
+        {
+          "index": 7,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Track is motion direction relative to True North.",
+        "Status mirrors other INS logs."
+      ]
+    },
+    "binary": {
+      "tag": "INSSPDB",
+      "id": 266,
+      "name": "INS Speed (Binary)",
+      "description": "INS speed (binary)",
+      "log_command": "insspdb",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "payload_length": 40,
+      "fields": [
+        {
+          "name": "week",
+          "type": "uint32",
+          "note": "GNSS week."
+        },
+        {
+          "name": "seconds_of_week",
+          "type": "float64",
+          "unit": "s",
+          "note": "GNSS seconds into week (s)."
+        },
+        {
+          "name": "track_deg",
+          "type": "float64",
+          "unit": "deg"
+        },
+        {
+          "name": "horizontal_speed_ms",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "Horizontal speed (m/s)."
+        },
+        {
+          "name": "vertical_speed_ms",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "Vertical speed (m/s)."
+        },
+        {
+          "name": "status",
+          "type": "uint32",
+          "note": "INS solution status; see Table 4-8 INS Status.",
+          "note_table": "table_4_8_ins_status"
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "notes": [
+        "Binary payload mirrors ASCII values using doubles for track/speeds."
+      ]
+    }
+  },
+  "INSSTDEV": {
+    "label": "INS Standard Deviations",
+    "description": "Outputs standard deviation of INS position, velocity and attitude.",
+    "ascii": {
+      "tag": "INSSTDEVA",
+      "name": "INS StdDev (ASCII)",
+      "description": "INS standard deviations (ASCII)",
+      "log_command": "insstdeva",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#INSSTDEVA",
+        "INSSTDEVA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "lat_sigma_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Latitude standard deviation (m)."
+        },
+        {
+          "index": 2,
+          "name": "lon_sigma_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Longitude standard deviation (m)."
+        },
+        {
+          "index": 3,
+          "name": "height_sigma_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Height standard deviation (m)."
+        },
+        {
+          "index": 4,
+          "name": "north_vel_sigma",
+          "type": "float",
+          "unit": "m/s"
+        },
+        {
+          "index": 5,
+          "name": "east_vel_sigma",
+          "type": "float",
+          "unit": "m/s"
+        },
+        {
+          "index": 6,
+          "name": "up_vel_sigma",
+          "type": "float",
+          "unit": "m/s"
+        },
+        {
+          "index": 7,
+          "name": "roll_sigma_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Roll standard deviation (deg)."
+        },
+        {
+          "index": 8,
+          "name": "pitch_sigma_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Pitch standard deviation (deg)."
+        },
+        {
+          "index": 9,
+          "name": "azimuth_sigma_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Azimuth standard deviation (deg)."
+        },
+        {
+          "index": 10,
+          "name": "extended_status",
+          "type": "str",
+          "note": "See Table 4-11 INS Extended Status",
+          "note_table": "table_4_11_ins_extended_solution_status"
+        },
+        {
+          "index": 11,
+          "name": "time_since_update_s",
+          "type": "float",
+          "unit": "s",
+          "note": "Elapsed time since last ZUPT/position update (s)."
+        },
+        {
+          "index": 12,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Standard deviations are 1-sigma values for each component."
+      ]
+    },
+    "binary": {
+      "tag": "INSSTDEVB",
+      "id": 2051,
+      "name": "INS StdDev (Binary)",
+      "description": "INS standard deviations (binary)",
+      "log_command": "insstdevb",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "payload_length": 52,
+      "fields": [
+        {
+          "name": "lat_sigma_m",
+          "type": "float32",
+          "unit": "m",
+          "note": "Latitude standard deviation (m)."
+        },
+        {
+          "name": "lon_sigma_m",
+          "type": "float32",
+          "unit": "m",
+          "note": "Longitude standard deviation (m)."
+        },
+        {
+          "name": "height_sigma_m",
+          "type": "float32",
+          "unit": "m",
+          "note": "Height standard deviation (m)."
+        },
+        {
+          "name": "north_vel_sigma",
+          "type": "float32",
+          "unit": "m/s"
+        },
+        {
+          "name": "east_vel_sigma",
+          "type": "float32",
+          "unit": "m/s"
+        },
+        {
+          "name": "up_vel_sigma",
+          "type": "float32",
+          "unit": "m/s"
+        },
+        {
+          "name": "roll_sigma_deg",
+          "type": "float32",
+          "unit": "deg",
+          "note": "Roll standard deviation (deg)."
+        },
+        {
+          "name": "pitch_sigma_deg",
+          "type": "float32",
+          "unit": "deg",
+          "note": "Pitch standard deviation (deg)."
+        },
+        {
+          "name": "azimuth_sigma_deg",
+          "type": "float32",
+          "unit": "deg",
+          "note": "Azimuth standard deviation (deg)."
+        },
+        {
+          "name": "extended_status",
+          "type": "uint32"
+        },
+        {
+          "name": "time_since_update_s",
+          "type": "uint16",
+          "unit": "s",
+          "note": "Elapsed time since last ZUPT/position update (s)."
+        },
+        {
+          "name": "reserved0",
+          "type": "uint16",
+          "note": "Reserved."
+        },
+        {
+          "name": "reserved1",
+          "type": "uint32",
+          "note": "Reserved."
+        },
+        {
+          "name": "reserved2",
+          "type": "uint32",
+          "note": "Reserved."
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "notes": [
+        "Extended status uses the INS extended status table; reserved fields omitted."
+      ]
+    }
+  },
+  "INSVEL": {
+    "label": "INS Velocity (ENU)",
+    "description": "Outputs velocity in local level ENU frame.",
+    "ascii": {
+      "tag": "INSVELA",
+      "name": "INS Velocity (ASCII)",
+      "description": "INS velocity in ENU frame (ASCII)",
+      "log_command": "insvela",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#INSVELA",
+        "INSVELA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "week",
+          "type": "int",
+          "note": "GNSS week."
+        },
+        {
+          "index": 2,
+          "name": "seconds_of_week",
+          "type": "float",
+          "unit": "s",
+          "note": "Seconds into week (s)."
+        },
+        {
+          "index": 3,
+          "name": "north_velocity_ms",
+          "type": "float",
+          "unit": "m/s"
+        },
+        {
+          "index": 4,
+          "name": "east_velocity_ms",
+          "type": "float",
+          "unit": "m/s"
+        },
+        {
+          "index": 5,
+          "name": "up_velocity_ms",
+          "type": "float",
+          "unit": "m/s"
+        },
+        {
+          "index": 6,
+          "name": "status",
+          "type": "str",
+          "note": "INS solution status; see Table 4-8 INS Status.",
+          "note_table": "table_4_8_ins_status"
+        },
+        {
+          "index": 7,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Velocity components aligned to local ENU frame."
+      ]
+    },
+    "binary": {
+      "tag": "INSVELB",
+      "id": 267,
+      "name": "INS Velocity (Binary)",
+      "description": "INS velocity in ENU frame (binary)",
+      "log_command": "insvelb",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "payload_length": 40,
+      "fields": [
+        {
+          "name": "week",
+          "type": "uint32",
+          "note": "GNSS week."
+        },
+        {
+          "name": "seconds_of_week",
+          "type": "float64",
+          "unit": "s",
+          "note": "Seconds into week (s)."
+        },
+        {
+          "name": "north_velocity_ms",
+          "type": "float64",
+          "unit": "m/s"
+        },
+        {
+          "name": "east_velocity_ms",
+          "type": "float64",
+          "unit": "m/s"
+        },
+        {
+          "name": "up_velocity_ms",
+          "type": "float64",
+          "unit": "m/s"
+        },
+        {
+          "name": "status",
+          "type": "uint32",
+          "note": "INS solution status; see Table 4-8 INS Status.",
+          "note_table": "table_4_8_ins_status"
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "notes": [
+        "Binary payload mirrors the ASCII values using doubles for velocities."
+      ]
+    }
+  },
+  "MARKTIME": {
+    "label": "IMU Event Time",
+    "description": "Marks IMU data ready event time (EVENT_IN).",
+    "ascii": {
+      "tag": "MARKTIMEA",
+      "name": "MARKTIME (ASCII)",
+      "description": "IMU event time stamp (ASCII)",
+      "log_command": "marktimea",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#MARKTIMEA",
+        "MARKTIMEA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "week",
+          "type": "int",
+          "description": "GPS reference week",
+          "note": "GPS reference week."
+        },
+        {
+          "index": 2,
+          "name": "seconds_of_week",
+          "type": "float",
+          "unit": "s",
+          "note": "Seconds measured by device clock since week start (s)."
+        },
+        {
+          "index": 3,
+          "name": "clock_offset_s",
+          "type": "float",
+          "unit": "s",
+          "description": "GPS time - device clock",
+          "note": "GPS time minus device clock (s)."
+        },
+        {
+          "index": 4,
+          "name": "clock_offset_std_s",
+          "type": "float",
+          "unit": "s",
+          "note": "Clock offset standard deviation (s)."
+        },
+        {
+          "index": 5,
+          "name": "utc_offset_s",
+          "type": "float",
+          "unit": "s",
+          "description": "UTC offset",
+          "note": "UTC offset = GPS reference time - clock offset + UTC correction."
+        },
+        {
+          "index": 6,
+          "name": "clock_status",
+          "type": "str",
+          "note": "Clock model status; see Table 4-14 Clock Model Status.",
+          "note_table": "table_4_14_clock_model_status"
+        },
+        {
+          "index": 7,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Fields follow the ';' separator just like other ASCII logs.",
+        "Status text mirrors clock model status values (VALID, INVALID, etc.)."
+      ]
+    },
+    "binary": {
+      "tag": "MARKTIMEB",
+      "id": 231,
+      "name": "MARKTIME (Binary)",
+      "description": "IMU event time stamp (binary)",
+      "log_command": "marktimeb",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "payload_length": 40,
+      "fields": [
+        {
+          "name": "week",
+          "type": "uint32",
+          "note": "GPS reference week."
+        },
+        {
+          "name": "seconds_of_week",
+          "type": "float64",
+          "unit": "s",
+          "note": "Seconds measured by device clock since week start (s)."
+        },
+        {
+          "name": "clock_offset_s",
+          "type": "float64",
+          "unit": "s",
+          "note": "GPS time minus device clock (s)."
+        },
+        {
+          "name": "clock_offset_std_s",
+          "type": "float64",
+          "unit": "s",
+          "note": "Clock offset standard deviation (s)."
+        },
+        {
+          "name": "utc_offset_s",
+          "type": "float64",
+          "unit": "s",
+          "note": "UTC offset (s)."
+        },
+        {
+          "name": "clock_status",
+          "type": "uint32",
+          "note": "Clock model status; see Table 4-14 Clock Model Status.",
+          "note_table": "table_4_14_clock_model_status"
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ]
+    }
+  },
+  "MARK2TIME": {
+    "label": "External Event Time",
+    "description": "Marks external EVENT_IN trigger time (MARK2TIME).",
+    "ascii": {
+      "tag": "MARK2TIMEA",
+      "name": "MARK2TIME (ASCII)",
+      "description": "External trigger event time (ASCII)",
+      "log_command": "mark2timea",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#MARK2TIMEA",
+        "MARK2TIMEA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "week",
+          "type": "int",
+          "note": "GPS reference week."
+        },
+        {
+          "index": 2,
+          "name": "seconds_of_week",
+          "type": "float",
+          "unit": "s",
+          "note": "Seconds measured by device clock since week start (s)."
+        },
+        {
+          "index": 3,
+          "name": "clock_offset_s",
+          "type": "float",
+          "unit": "s",
+          "note": "GPS time minus device clock (s)."
+        },
+        {
+          "index": 4,
+          "name": "clock_offset_std_s",
+          "type": "float",
+          "unit": "s",
+          "note": "Clock offset standard deviation (s)."
+        },
+        {
+          "index": 5,
+          "name": "utc_offset_s",
+          "type": "float",
+          "unit": "s",
+          "note": "UTC offset = GPS reference time - clock offset + UTC correction."
+        },
+        {
+          "index": 6,
+          "name": "clock_status",
+          "type": "str",
+          "note": "Clock model status; see Table 4-14 Clock Model Status.",
+          "note_table": "table_4_14_clock_model_status"
+        },
+        {
+          "index": 7,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Same payload layout as MARKTIMEA but tied to EVENT_IN triggers."
+      ]
+    },
+    "binary": {
+      "tag": "MARK2TIMEB",
+      "id": 616,
+      "name": "MARK2TIME (Binary)",
+      "description": "External trigger event time (binary)",
+      "log_command": "mark2timeb",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "payload_length": 40,
+      "fields": [
+        {
+          "name": "week",
+          "type": "uint32",
+          "note": "GPS reference week."
+        },
+        {
+          "name": "seconds_of_week",
+          "type": "float64",
+          "unit": "s",
+          "note": "Seconds measured by device clock since week start (s)."
+        },
+        {
+          "name": "clock_offset_s",
+          "type": "float64",
+          "unit": "s",
+          "note": "GPS time minus device clock (s)."
+        },
+        {
+          "name": "clock_offset_std_s",
+          "type": "float64",
+          "unit": "s",
+          "note": "Clock offset standard deviation (s)."
+        },
+        {
+          "name": "utc_offset_s",
+          "type": "float64",
+          "unit": "s",
+          "note": "UTC offset (s)."
+        },
+        {
+          "name": "clock_status",
+          "type": "uint32",
+          "note": "Clock model status; see Table 4-14 Clock Model Status.",
+          "note_table": "table_4_14_clock_model_status"
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ]
+    }
+  },
+  "PSRVEL": {
+    "label": "Pseudo-range Velocity",
+    "description": "Instantaneous Doppler-derived velocity components.",
+    "ascii": {
+      "tag": "PSRVELA",
+      "name": "PSRVEL (ASCII)",
+      "description": "Pseudo-range velocity solution (ASCII)",
+      "log_command": "psrvela",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#PSRVELA",
+        "PSRVELA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "sol_status",
+          "type": "str",
+          "note": "Solution status; see Table 4-1 Solution Status.",
+          "note_table": "table_4_1_solution_status"
+        },
+        {
+          "index": 2,
+          "name": "vel_type",
+          "type": "str",
+          "note": "Velocity type; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "index": 3,
+          "name": "latency_s",
+          "type": "float",
+          "unit": "s",
+          "note": "Latency in velocity time tag (s)."
+        },
+        {
+          "index": 4,
+          "name": "differential_age_s",
+          "type": "float",
+          "unit": "s",
+          "note": "Differential age (s)."
+        },
+        {
+          "index": 5,
+          "name": "horizontal_speed_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "Horizontal speed over ground (m/s)."
+        },
+        {
+          "index": 6,
+          "name": "track_over_ground_deg",
+          "type": "float",
+          "unit": "deg",
+          "description": "Direction of motion relative to True North",
+          "note": "Track over ground relative to True North (deg)."
+        },
+        {
+          "index": 7,
+          "name": "vertical_speed_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "Vertical speed (m/s); positive=up, negative=down."
+        },
+        {
+          "index": 8,
+          "name": "reserved",
+          "type": "float",
+          "note": "Reserved."
+        },
+        {
+          "index": 9,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ]
+    },
+    "binary": {
+      "tag": "PSRVELB",
+      "id": 100,
+      "name": "PSRVEL (Binary)",
+      "description": "Pseudo-range velocity solution (binary)",
+      "log_command": "psrvelb",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "payload_length": 44,
+      "fields": [
+        {
+          "name": "sol_status",
+          "type": "uint32",
+          "note": "Solution status; see Table 4-1 Solution Status.",
+          "note_table": "table_4_1_solution_status"
+        },
+        {
+          "name": "vel_type",
+          "type": "uint32",
+          "note": "Velocity type; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "name": "latency_s",
+          "type": "float32",
+          "unit": "s",
+          "note": "Latency in velocity time tag (s)."
+        },
+        {
+          "name": "differential_age_s",
+          "type": "float32",
+          "unit": "s",
+          "note": "Differential age (s)."
+        },
+        {
+          "name": "horizontal_speed_ms",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "Horizontal speed over ground (m/s)."
+        },
+        {
+          "name": "track_over_ground_deg",
+          "type": "float64",
+          "unit": "deg",
+          "note": "Track over ground relative to True North (deg)."
+        },
+        {
+          "name": "vertical_speed_ms",
+          "type": "float64",
+          "unit": "m/s",
+          "note": "Vertical speed (m/s); positive=up, negative=down."
+        },
+        {
+          "name": "reserved",
+          "type": "float32",
+          "note": "Reserved."
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ]
+    }
+  },
+  "RADMI": {
+    "label": "Wheel Speed (DMI)",
+    "description": "Vehicle wheel speed and steering data from the Distance Measuring Instrument.",
+    "ascii": {
+      "tag": "RADMI",
+      "name": "RADMI Wheel Speed (ASCII)",
+      "description": "Wheel speed data from the DMI sensor (ASCII).",
+      "log_command": "radmi",
+      "default_rate_hz": 0,
+      "on_new": true,
+      "aliases": [
+        "$RADMI",
+        "RADMI"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "data_id",
+          "type": "str",
+          "note": "Should read $RADMI."
+        },
+        {
+          "index": 2,
+          "name": "seconds_of_week",
+          "type": "float",
+          "unit": "s",
+          "description": "GPST week seconds (0\u2013604800).",
+          "note": "GPST week seconds (0\u2013604800)."
+        },
+        {
+          "index": 3,
+          "name": "status_bits",
+          "type": "str",
+          "note": "Hex status bits; see Table 4-15 Status of Data Bits.",
+          "note_table": "table_4_15_status_of_data_bits"
+        },
+        {
+          "index": 4,
+          "name": "left_front_speed_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "Left front wheel speed (m/s)."
+        },
+        {
+          "index": 5,
+          "name": "right_front_speed_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "Right front wheel speed (m/s)."
+        },
+        {
+          "index": 6,
+          "name": "left_rear_speed_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "Left rear wheel speed (m/s)."
+        },
+        {
+          "index": 7,
+          "name": "right_rear_speed_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "Right rear wheel speed (m/s)."
+        },
+        {
+          "index": 8,
+          "name": "reserved_speed1_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "Reserved wheel speed 1 (m/s)."
+        },
+        {
+          "index": 9,
+          "name": "reserved_speed2_ms",
+          "type": "float",
+          "unit": "m/s",
+          "note": "Reserved wheel speed 2 (m/s)."
+        },
+        {
+          "index": 10,
+          "name": "steering_angle_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "Steering angle (\u00b0)."
+        },
+        {
+          "index": 11,
+          "name": "gear_state",
+          "type": "int",
+          "note": "Gear state (R=-1, P=0, N=1, Dx=x+1)."
+        },
+        {
+          "index": 12,
+          "name": "speed_direction",
+          "type": "int",
+          "note": "Speed direction (-1=backwards, 0=stop, 1=forwards)."
+        },
+        {
+          "index": 13,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Recommended command: LOG RADMI ONNEW.",
+        "Wheel speeds are reported in meters per second; reserved slots allow OEM extensions.",
+        "Status bits follow the DMI data-bit definitions from UG017 Table 4-15."
+      ]
+    }
+  },
+  "IONUTC": {
+    "label": "Ionospheric/UTC Parameters",
+    "description": "Contains ionospheric (alpha/beta) and UTC polynomial parameters.",
+    "ascii": {
+      "tag": "IONUTCA",
+      "name": "ION/UTC Parameters (ASCII)",
+      "description": "Ionospheric model + UTC parameters (ASCII)",
+      "log_command": "ionutca",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#IONUTCA",
+        "IONUTCA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "a0",
+          "type": "float",
+          "unit": "",
+          "note": "Klobuchar alpha term a0."
+        },
+        {
+          "index": 2,
+          "name": "a1",
+          "type": "float",
+          "note": "Klobuchar alpha term a1."
+        },
+        {
+          "index": 3,
+          "name": "a2",
+          "type": "float",
+          "note": "Klobuchar alpha term a2."
+        },
+        {
+          "index": 4,
+          "name": "a3",
+          "type": "float",
+          "note": "Klobuchar alpha term a3."
+        },
+        {
+          "index": 5,
+          "name": "b0",
+          "type": "float",
+          "note": "Klobuchar beta term b0."
+        },
+        {
+          "index": 6,
+          "name": "b1",
+          "type": "float",
+          "note": "Klobuchar beta term b1."
+        },
+        {
+          "index": 7,
+          "name": "b2",
+          "type": "float",
+          "note": "Klobuchar beta term b2."
+        },
+        {
+          "index": 8,
+          "name": "b3",
+          "type": "float",
+          "note": "Klobuchar beta term b3."
+        },
+        {
+          "index": 9,
+          "name": "utc_week",
+          "type": "int",
+          "note": "UTC reference week."
+        },
+        {
+          "index": 10,
+          "name": "tot",
+          "type": "int",
+          "note": "Time of week for UTC parameters."
+        },
+        {
+          "index": 11,
+          "name": "A0",
+          "type": "float",
+          "note": "UTC parameter A0."
+        },
+        {
+          "index": 12,
+          "name": "A1",
+          "type": "float",
+          "note": "UTC parameter A1."
+        },
+        {
+          "index": 13,
+          "name": "wn_lsf",
+          "type": "int",
+          "note": "Week number when future leap second occurs."
+        },
+        {
+          "index": 14,
+          "name": "dn",
+          "type": "int",
+          "note": "Day number when future leap second occurs (1=Sunday..7=Saturday)."
+        },
+        {
+          "index": 15,
+          "name": "delta_t_ls",
+          "type": "int",
+          "note": "Current leap seconds."
+        },
+        {
+          "index": 16,
+          "name": "delta_t_lsf",
+          "type": "int",
+          "note": "Future leap seconds."
+        },
+        {
+          "index": 17,
+          "name": "reserved0",
+          "type": "float",
+          "note": "Reserved."
+        },
+        {
+          "index": 18,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "a0..a3 = Klobuchar alpha terms; b0..b3 = beta terms.",
+        "UTC parameters (A0/A1/tot/wn) follow GPS ICD definitions."
+      ]
+    },
+    "binary": {
+      "tag": "IONUTCB",
+      "id": 8,
+      "name": "ION/UTC Parameters (Binary)",
+      "description": "Ionospheric model + UTC parameters (binary)",
+      "log_command": "ionutcb",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "payload_length": 108,
+      "fields": [
+        {
+          "name": "a0",
+          "type": "float64",
+          "note": "Klobuchar alpha term a0."
+        },
+        {
+          "name": "a1",
+          "type": "float64",
+          "note": "Klobuchar alpha term a1."
+        },
+        {
+          "name": "a2",
+          "type": "float64",
+          "note": "Klobuchar alpha term a2."
+        },
+        {
+          "name": "a3",
+          "type": "float64",
+          "note": "Klobuchar alpha term a3."
+        },
+        {
+          "name": "b0",
+          "type": "float64",
+          "note": "Klobuchar beta term b0."
+        },
+        {
+          "name": "b1",
+          "type": "float64",
+          "note": "Klobuchar beta term b1."
+        },
+        {
+          "name": "b2",
+          "type": "float64",
+          "note": "Klobuchar beta term b2."
+        },
+        {
+          "name": "b3",
+          "type": "float64",
+          "note": "Klobuchar beta term b3."
+        },
+        {
+          "name": "utc_week",
+          "type": "uint32",
+          "note": "UTC reference week."
+        },
+        {
+          "name": "tot",
+          "type": "uint32",
+          "note": "Time of week for UTC parameters."
+        },
+        {
+          "name": "A0",
+          "type": "float64",
+          "note": "UTC parameter A0."
+        },
+        {
+          "name": "A1",
+          "type": "float64",
+          "note": "UTC parameter A1."
+        },
+        {
+          "name": "wn_lsf",
+          "type": "uint32",
+          "note": "Week number when future leap second occurs."
+        },
+        {
+          "name": "dn",
+          "type": "uint32",
+          "note": "Day number when future leap second occurs (1=Sunday..7=Saturday)."
+        },
+        {
+          "name": "delta_t_ls",
+          "type": "int32",
+          "note": "Current leap seconds."
+        },
+        {
+          "name": "delta_t_lsf",
+          "type": "int32",
+          "note": "Future leap seconds."
+        },
+        {
+          "name": "reserved0",
+          "type": "uint32",
+          "note": "Reserved."
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "notes": [
+        "Binary payload order matches the ASCII fields; CRC handled by frame footer."
+      ]
+    }
+  },
+  "TIME": {
+    "label": "Time Offsets",
+    "description": "Clock/UTC offsets and status.",
+    "ascii": {
+      "tag": "TIMEA",
+      "name": "TIME (ASCII)",
+      "description": "Receiver clock / UTC offsets (ASCII)",
+      "log_command": "timea",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#TIMEA",
+        "TIMEA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "clock_status",
+          "type": "str",
+          "note": "Clock model status; see Table 4-14 Clock Model Status.",
+          "note_table": "table_4_14_clock_model_status"
+        },
+        {
+          "index": 2,
+          "name": "offset_s",
+          "type": "float",
+          "unit": "s",
+          "note": "Receiver clock offset from GPS system time (s)."
+        },
+        {
+          "index": 3,
+          "name": "offset_std_s",
+          "type": "float",
+          "unit": "s",
+          "note": "Clock offset standard deviation (s)."
+        },
+        {
+          "index": 4,
+          "name": "utc_offset_s",
+          "type": "float",
+          "unit": "s",
+          "note": "GPS-to-UTC offset from almanac minus receiver clock offset."
+        },
+        {
+          "index": 5,
+          "name": "utc_year",
+          "type": "int",
+          "note": "UTC year."
+        },
+        {
+          "index": 6,
+          "name": "utc_month",
+          "type": "int",
+          "note": "UTC month (0-12; 0 if unknown)."
+        },
+        {
+          "index": 7,
+          "name": "utc_day",
+          "type": "int",
+          "note": "UTC day (0-31; 0 if unknown)."
+        },
+        {
+          "index": 8,
+          "name": "utc_hour",
+          "type": "int",
+          "note": "UTC hour (0-23)."
+        },
+        {
+          "index": 9,
+          "name": "utc_min",
+          "type": "int",
+          "note": "UTC minute (0-59)."
+        },
+        {
+          "index": 10,
+          "name": "utc_ms",
+          "type": "int",
+          "note": "UTC millisecond (0-60999; leap second may extend range)."
+        },
+        {
+          "index": 11,
+          "name": "utc_status",
+          "type": "str",
+          "note": "UTC status (0=invalid,1=valid,2=warning*). *Leap second default when almanac missing."
+        },
+        {
+          "index": 12,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "Leap second value may be used as default if almanac is unavailable.",
+        "Fields appear after the ';' separator."
+      ]
+    },
+    "binary": {
+      "tag": "TIMEB",
+      "id": 101,
+      "name": "Time Offsets (Binary)",
+      "description": "Receiver clock / UTC offsets (binary)",
+      "log_command": "timeb",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "payload_length": 44,
+      "fields": [
+        {
+          "name": "clock_status",
+          "type": "uint32",
+          "note": "Clock model status; see Table 4-14 Clock Model Status.",
+          "note_table": "table_4_14_clock_model_status"
+        },
+        {
+          "name": "offset_s",
+          "type": "float64",
+          "unit": "s",
+          "note": "Receiver clock offset from GPS system time (s)."
+        },
+        {
+          "name": "offset_std_s",
+          "type": "float64",
+          "unit": "s",
+          "note": "Clock offset standard deviation (s)."
+        },
+        {
+          "name": "utc_offset_s",
+          "type": "float64",
+          "unit": "s",
+          "note": "GPS-to-UTC offset (almanac) minus receiver clock offset."
+        },
+        {
+          "name": "utc_year",
+          "type": "uint32",
+          "note": "UTC year."
+        },
+        {
+          "name": "utc_month",
+          "type": "uint8",
+          "note": "UTC month (0-12; 0 if unknown)."
+        },
+        {
+          "name": "utc_day",
+          "type": "uint8",
+          "note": "UTC day (0-31; 0 if unknown)."
+        },
+        {
+          "name": "utc_hour",
+          "type": "uint8",
+          "note": "UTC hour (0-23)."
+        },
+        {
+          "name": "utc_min",
+          "type": "uint8",
+          "note": "UTC minute (0-59)."
+        },
+        {
+          "name": "utc_ms",
+          "type": "uint32",
+          "note": "UTC millisecond (0-60999; leap second may extend range)."
+        },
+        {
+          "name": "utc_status",
+          "type": "uint32",
+          "note": "UTC status (0=invalid,1=valid,2=warning*). *Leap second default when almanac missing."
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "Frame CRC (not part of payload length)."
+        }
+      ],
+      "notes": [
+        "Binary layout follows Table 4-14 clock status and UTC fields; CRC handled by framing."
+      ]
+    }
+  },
+  "TRACKSTAT": {
+    "label": "Tracking Status",
+    "description": "Per-channel tracking status and measurements.",
+    "ascii": {
+      "tag": "TRACKSTATA",
+      "name": "TRACKSTAT (ASCII)",
+      "description": "Channel tracking status (ASCII)",
+      "log_command": "trackstata",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "aliases": [
+        "#TRACKSTATA",
+        "TRACKSTATA"
+      ],
+      "fields": [
+        {
+          "index": 1,
+          "name": "solution_status",
+          "type": "str",
+          "note": "Solution status; see Table 4-1 Solution Status.",
+          "note_table": "table_4_1_solution_status"
+        },
+        {
+          "index": 2,
+          "name": "position_type",
+          "type": "str",
+          "note": "Position type; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "index": 3,
+          "name": "cutoff_deg",
+          "type": "float",
+          "unit": "deg",
+          "note": "GPS tracking elevation cut-off angle."
+        },
+        {
+          "index": 4,
+          "name": "num_channels",
+          "type": "int",
+          "note": "Number of hardware channels (#chans) that follow."
+        },
+        {
+          "index": 5,
+          "name": "prn_slot",
+          "type": "str",
+          "note": "Per-channel: Satellite PRN or GLONASS slot."
+        },
+        {
+          "index": 6,
+          "name": "glofreq",
+          "type": "str",
+          "note": "Per-channel: GLONASS frequency + 7."
+        },
+        {
+          "index": 7,
+          "name": "ch_tr_status",
+          "type": "str",
+          "note": "Per-channel tracking status; see note②."
+        },
+        {
+          "index": 8,
+          "name": "psr_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Per-channel pseudorange (m); 0 if code not yet calculated."
+        },
+        {
+          "index": 9,
+          "name": "doppler_hz",
+          "type": "float",
+          "unit": "Hz",
+          "note": "Per-channel Doppler frequency."
+        },
+        {
+          "index": 10,
+          "name": "cno_dbhz",
+          "type": "float",
+          "unit": "dB-Hz",
+          "note": "Per-channel carrier-to-noise density ratio."
+        },
+        {
+          "index": 11,
+          "name": "locktime_s",
+          "type": "float",
+          "unit": "s",
+          "note": "Per-channel continuous tracking time (no cycle slips)."
+        },
+        {
+          "index": 12,
+          "name": "psr_res_m",
+          "type": "float",
+          "unit": "m",
+          "note": "Per-channel pseudorange residual."
+        },
+        {
+          "index": 13,
+          "name": "reject_code",
+          "type": "int",
+          "note": "Per-channel range reject code from pseudorange filter."
+        },
+        {
+          "index": 14,
+          "name": "psr_weight",
+          "type": "float",
+          "unit": "m",
+          "note": "Per-channel pseudorange filter weighting."
+        },
+        {
+          "index": 15,
+          "name": "channel_repeat",
+          "type": "str",
+          "note": "Fields 5-14 repeat for each channel (#chans)."
+        },
+        {
+          "index": 16,
+          "name": "crc_hex",
+          "type": "str",
+          "note": "ASCII CRC and terminator."
+        }
+      ],
+      "notes": [
+        "For multi-antenna, use TRACKSTATA_1 or TRACKSTATA_2 as applicable.",
+        "Channel records repeat #chans times; each record corresponds to one tracked signal."
+      ]
+    },
+    "binary": {
+      "tag": "TRACKSTATB",
+      "id": 83,
+      "name": "TRACKSTAT (Binary)",
+      "description": "Channel tracking status (binary)",
+      "log_command": "trackstatb",
+      "default_rate_hz": 1,
+      "on_new": false,
+      "payload_length": 0,
+      "fields": [
+        {
+          "name": "solution_status",
+          "type": "uint32",
+          "note": "Solution status; see Table 4-1 Solution Status.",
+          "note_table": "table_4_1_solution_status"
+        },
+        {
+          "name": "position_type",
+          "type": "uint32",
+          "note": "Position type; see Table 4-2 Position Status.",
+          "note_table": "table_4_2_position_status"
+        },
+        {
+          "name": "cutoff_deg",
+          "type": "float32",
+          "unit": "deg",
+          "note": "GPS tracking elevation cut-off angle."
+        },
+        {
+          "name": "num_channels",
+          "type": "uint32",
+          "note": "Number of hardware channels that follow."
+        },
+        {
+          "name": "prn_slot",
+          "type": "uint16",
+          "note": "Satellite PRN number (GLONASS PRN = slot + 37)."
+        },
+        {
+          "name": "glofreq",
+          "type": "int16",
+          "note": "GLONASS frequency + 7."
+        },
+        {
+          "name": "ch_tr_status",
+          "type": "uint32",
+          "note": "Channel tracking status; see note②."
+        },
+        {
+          "name": "psr_m",
+          "type": "float64",
+          "unit": "m",
+          "note": "Pseudorange (m); may be 0 if code not calculated."
+        },
+        {
+          "name": "doppler_hz",
+          "type": "float32",
+          "unit": "Hz",
+          "note": "Doppler frequency."
+        },
+        {
+          "name": "cno_dbhz",
+          "type": "float32",
+          "unit": "dB-Hz",
+          "note": "Carrier-to-noise density ratio."
+        },
+        {
+          "name": "locktime_s",
+          "type": "float32",
+          "unit": "s",
+          "note": "Seconds of continuous tracking (no cycle slips)."
+        },
+        {
+          "name": "psr_res_m",
+          "type": "float32",
+          "unit": "m",
+          "note": "Pseudorange residual."
+        },
+        {
+          "name": "reject_code",
+          "type": "uint32",
+          "note": "Range reject code from pseudorange filter."
+        },
+        {
+          "name": "psr_weight",
+          "type": "float32",
+          "note": "Pseudorange filter weighting."
+        },
+        {
+          "name": "crc32",
+          "type": "uint32",
+          "source": "crc",
+          "note": "32-bit CRC; offset = 16 + (#chans * 40)."
+        }
+      ],
+      "notes": [
+        "Variable payload length: 16 bytes fixed + 40 bytes per channel; CRC follows channel list (offset = 16 + #chans * 40). Schema lists the first channel; repeat fields (prn_slot..psr_weight) #chans times in payload.",
+        "PRN for GLONASS = slot + 37. Channel tracking status enums: 0 spare, 1 sky search, 2 wideband acquisition, 3 narrowband acquisition, 4 phase-locked loop, 6 channel guiding, 7 frequency-locked loop, 9 channel alignment, 10 code search, 11 auxiliary PLL, 23 side lobe detection, 24 FFT sky search."
+      ]
+    }
+  }
+}

@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<robot name="rover_bot">
+
+  <!--
+    Ex86130 PRO RUNNER Crawler/Off-Road
+    Spec:
+      Length : 0.512 m
+      Width  : 0.240 m
+      Height : 0.241 m
+      Wheelbase   : 0.313 m
+      Wheel       : Ø110 mm x 40 mm  (r=0.055, w=0.040)
+      Max steer   : 46 deg
+      Drive       : Front +4WD (FWD/4WD)
+    Frames:
+      base_footprint : ground (z=0)
+      base_link      : chassis geometric center, z = wheel radius above ground
+  -->
+
+  <material name="blue"> <color rgba="0 0 0.8 1"/> </material>
+  <material name="black"><color rgba="0 0 0 1"/>   </material>
+  <material name="red">  <color rgba="1 0 0 1"/>   </material>
+  <material name="green"><color rgba="0 0.7 0 1"/> </material>
+
+  <!-- ============== base_footprint (zemin) ============== -->
+  <link name="base_footprint"/>
+
+  <!-- ============== base_link (chassis center) ============== -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <!-- Chassis: 0.512 (L) x 0.240 (W) x 0.170 (H) -->
+        <box size="0.512 0.240 0.170"/>
+      </geometry>
+      <material name="blue"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child  link="base_link"/>
+    <!-- base_link, zeminden tekerlek yari capi kadar yukarida -->
+    <origin xyz="0 0 0.055" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ============== IMU (BNO055) ==============
+       Aracin uzunlamasina merkezinde, on kenardan 18 cm geride.
+       on kenar x = +0.256  ->  IMU x = 0.256 - 0.18 = +0.076
+       z chassis ust yuzeyine yakin
+  -->
+  <link name="imu_link">
+    <visual>
+      <geometry> <box size="0.04 0.04 0.015"/> </geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child  link="imu_link"/>
+    <origin xyz="0.076 0 0.05" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ============== GPS anten ==============
+       En arka noktada, merkezde (y=0). x = -0.512/2 = -0.256
+  -->
+  <link name="gps_link">
+    <visual>
+      <geometry> <box size="0.05 0.05 0.02"/> </geometry>
+      <material name="green"/>
+    </visual>
+  </link>
+
+  <joint name="gps_joint" type="fixed">
+    <parent link="base_link"/>
+    <child  link="gps_link"/>
+    <origin xyz="-0.256 0 0.10" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ============== Tekerlekler ==============
+       Wheelbase 0.313  ->  on/arka tekerlek x = ±0.1565
+       Track     ~ chassis kenarinin disinda  ->  y = ±0.13
+       Tekerlek merkezi yerden r=0.055 yukarida; base_link z=+0.055 oldugu icin
+       tekerlek merkezi base_link'ten -0.055 asagida.
+  -->
+  <link name="front_left_wheel">
+    <visual>
+      <geometry> <cylinder radius="0.055" length="0.040"/> </geometry>
+      <material name="black"/>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+    </visual>
+  </link>
+  <joint name="front_left_wheel_joint" type="fixed">
+    <parent link="base_link"/>
+    <child  link="front_left_wheel"/>
+    <origin xyz="0.1565 0.13 -0.055" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <link name="front_right_wheel">
+    <visual>
+      <geometry> <cylinder radius="0.055" length="0.040"/> </geometry>
+      <material name="black"/>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+    </visual>
+  </link>
+  <joint name="front_right_wheel_joint" type="fixed">
+    <parent link="base_link"/>
+    <child  link="front_right_wheel"/>
+    <origin xyz="0.1565 -0.13 -0.055" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <link name="rear_left_wheel">
+    <visual>
+      <geometry> <cylinder radius="0.055" length="0.040"/> </geometry>
+      <material name="black"/>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+    </visual>
+  </link>
+  <joint name="rear_left_wheel_joint" type="fixed">
+    <parent link="base_link"/>
+    <child  link="rear_left_wheel"/>
+    <origin xyz="-0.1565 0.13 -0.055" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <link name="rear_right_wheel">
+    <visual>
+      <geometry> <cylinder radius="0.055" length="0.040"/> </geometry>
+      <material name="black"/>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+    </visual>
+  </link>
+  <joint name="rear_right_wheel_joint" type="fixed">
+    <parent link="base_link"/>
+    <child  link="rear_right_wheel"/>
+    <origin xyz="-0.1565 -0.13 -0.055" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+</robot>

@@ -1,0 +1,53 @@
+ekf_filter_node_odom:
+  ros__parameters:
+    # ============================================================
+    # LOCAL EKF  (odom frame)
+    # ------------------------------------------------------------
+    # Encoder yok, odom_esp yok, hiz sensoru yok. Tek kaynak BNO055.
+    # ivmeolcer (ax) cift-integre edilirse konum kacinilmaz olarak
+    # KACAR (runaway drift). Lokal filtrede konumu duzeltecek mutlak
+    # referans (GPS) olmadigi icin ax HIC fuze EDILMEZ.
+    # Bu filtre sadece YON uretir:
+    #   - vyaw  (gyro Z)   -> donus hizi
+    #   - yaw   (relative) -> akici yon, basta 0
+    # Konum odom frame'inde ~0'da kalir; gercek konum global EKF +
+    # GPS uzerinden map->odom TF'i ile gelir.
+    # ============================================================
+
+    frequency: 30.0
+    sensor_timeout: 0.1            # BNO055 ~30-35 Hz
+    two_d_mode: true
+    transform_time_offset: 0.0
+    transform_timeout: 0.1
+    print_diagnostics: true
+    debug: false
+
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: odom              # local filtre
+
+    publish_tf: true               # odom -> base_link TF burada uretilir
+    publish_acceleration: false
+
+    # ============================================================
+    # IMU 0 : BNO055 (sadece yaw + vyaw, ivme YOK)
+    # ============================================================
+    imu0: /bno055/imu
+    imu0_queue_size: 10
+    imu0_nodelay: true
+
+    # [x, y, z,  roll, pitch, yaw,
+    #  vx, vy, vz, vroll, vpitch, vyaw,
+    #  ax, ay, az]
+    imu0_config: [false, false, false,
+                  false, false, true,
+                  false, false, false,
+                  false, false, true,
+                  false, false, false]   # ax KAPALI -> konum kacmaz
+
+    imu0_differential: false
+    imu0_relative: true            # robot aciliskinda yaw=0 kabul
+    imu0_remove_gravitational_acceleration: false  # ivme fuze edilmiyor
+
+    use_control: false

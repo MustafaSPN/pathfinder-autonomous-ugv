@@ -1,0 +1,28 @@
+navsat_transform:
+  ros__parameters:
+    # GNSS 20 Hz oldugu icin filtre hizini esitliyoruz
+    frequency: 20.0
+    delay: 0.0
+
+    # Yon GNSS dual antenden geliyor; manyetik sapma kullanmiyoruz
+    magnetic_declination_radians: 0.0
+    yaw_offset: 0.0
+
+    # Yer aracinda yukseklik onemli degil
+    zero_altitude: true
+
+    broadcast_utm_transform: false
+    publish_filtered_gps: false
+    wait_for_datum: true
+    use_odometry_yaw: false
+
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+
+    # Inputs
+    gps_frame: gps_link
+    imu_frame: gps_link
+    gps_topic: /fix
+    imu_topic: /gps/imu
+    odometry_topic: /odometry/global   # map-frame referans (odom degil) -> /odometry/gps map frame'inde
