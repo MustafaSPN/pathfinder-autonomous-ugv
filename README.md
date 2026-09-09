@@ -36,26 +36,15 @@ All three run outdoors on real hardware, navigating GPS waypoint missions with R
 
 Every vehicle runs the same two ROS 2 packages, the same launch files, and the same localization and navigation topology. What changes per vehicle is configuration: kinematic limits, EKF inputs, costmap footprint, controller tuning.
 
-```mermaid
-flowchart TD
-    GNSS["RTK GNSS<br/>position + dual-antenna heading"]
-    IMU["IMU (BNO055)"]
-    ODO["Wheel odometry /odom_esp<br/>Tracked and 4x4 only"]
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/media/architecture-dark.png">
+    <img alt="Pathfinder autonomy architecture: sensing feeds a dual-EKF localization stack, which feeds Nav2, twist_mux and /cmd_vel_out, which is consumed by an ESP32-S3 running micro-ROS and finally the vehicle-specific motor interface. The web mission console talks to Nav2." src="docs/media/architecture-light.png" width="520">
+  </picture>
+</p>
 
-    IMU --> EKFL["Local EKF<br/>publishes odom to base_link"]
-    ODO --> EKFL
-    EKFL --> NAVSAT["navsat_transform<br/>lat/lon into the map frame"]
-    GNSS --> NAVSAT
-    NAVSAT --> EKFG["Global EKF<br/>publishes map to odom"]
-    GNSS --> EKFG
-    IMU --> EKFG
-    EKFG --> NAV2["Nav2<br/>NavFn planner + Regulated Pure Pursuit"]
-    NAV2 --> MUX["twist_mux<br/>nav2 / joystick / e-stop priority"]
-    MUX --> CMD["/cmd_vel_out"]
-    CMD --> ESP["ESP32-S3 · micro-ROS"]
-    ESP --> MOTOR["Vehicle-specific motor interface"]
-    CONSOLE["Web Mission Console<br/>FastAPI · WebSocket · Leaflet"] <--> NAV2
-```
+<p align="center"><sub>* No wheel odometry on the RC Crawler — its position comes entirely from RTK GNSS.
+&nbsp;·&nbsp; <a href="docs/architecture/README.md">Detailed diagram and frame layout</a></sub></p>
 
 **The abstraction boundary is `/cmd_vel_out` and `/odom_esp`.** Everything above it — localization, planning, control, the mission console — is identical across the fleet. Everything below it is vehicle-specific: tracks, four wheels, or a steering servo. Porting the stack to a new platform means writing the firmware behind that boundary and retuning the layer above it, not rewriting the autonomy.
 

@@ -4,6 +4,16 @@ All three vehicles run the same two ROS 2 packages, the same launch files and th
 localization and navigation topology. What changes per vehicle is configuration:
 kinematic limits, EKF inputs, costmap footprint and controller tuning.
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="../media/architecture-detailed-dark.png">
+    <img alt="Detailed Pathfinder autonomy architecture showing RTK GNSS, IMU and wheel odometry feeding the local EKF, navsat_transform and global EKF, then Nav2, twist_mux, /cmd_vel_out, the ESP32-S3 micro-ROS bridge and the vehicle motor interface, with the web mission console attached to Nav2." src="../media/architecture-detailed-light.png" width="760">
+  </picture>
+</p>
+
+<details>
+<summary>Diagram source (Mermaid)</summary>
+
 ```mermaid
 flowchart TD
     GNSS["RTK GNSS<br/>position + dual-antenna heading"]
@@ -24,6 +34,12 @@ flowchart TD
     ESP --> MOTOR["Vehicle-specific motor interface"]
     CONSOLE["Web Mission Console<br/>FastAPI · WebSocket · Leaflet"] <--> NAV2
 ```
+
+Rendered with `mmdc -i architecture-detailed.mmd -o ../media/architecture-detailed-light.png -t default -b "#ffffff" -w 1000 -s 2`
+(and `-t dark -b "#0d1117"` for the dark variant). The images are committed because
+GitHub renders Mermaid client-side, which does not run in the GitHub mobile app.
+
+</details>
 
 ## The abstraction boundary
 

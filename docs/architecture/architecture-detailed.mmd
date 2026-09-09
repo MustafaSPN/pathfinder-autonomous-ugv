@@ -1,0 +1,18 @@
+flowchart TD
+    GNSS["RTK GNSS<br/>position + dual-antenna heading"]
+    IMU["IMU (BNO055)"]
+    ODO["Wheel odometry /odom_esp<br/>Tracked and 4x4 only"]
+
+    IMU --> EKFL["Local EKF<br/>publishes odom to base_link"]
+    ODO --> EKFL
+    EKFL --> NAVSAT["navsat_transform<br/>lat/lon into the map frame"]
+    GNSS --> NAVSAT
+    NAVSAT --> EKFG["Global EKF<br/>publishes map to odom"]
+    GNSS --> EKFG
+    IMU --> EKFG
+    EKFG --> NAV2["Nav2<br/>NavFn planner + Regulated Pure Pursuit"]
+    NAV2 --> MUX["twist_mux<br/>nav2 / joystick / e-stop priority"]
+    MUX --> CMD["/cmd_vel_out"]
+    CMD --> ESP["ESP32-S3 · micro-ROS"]
+    ESP --> MOTOR["Vehicle-specific motor interface"]
+    CONSOLE["Web Mission Console<br/>FastAPI · WebSocket · Leaflet"] <--> NAV2

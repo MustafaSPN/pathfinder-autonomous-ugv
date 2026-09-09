@@ -1,0 +1,9 @@
+flowchart TD
+    A["<b>Sensing</b><br/>RTK GNSS + dual-antenna heading<br/>IMU (BNO055)<br/>Wheel odometry*"]
+    A --> B["<b>Dual-EKF localization</b><br/>local EKF &nbsp;odom → base_link<br/>navsat_transform<br/>global EKF &nbsp;map → odom"]
+    B --> C["<b>Nav2</b><br/>NavFn planner<br/>Regulated Pure Pursuit"]
+    C --> D["<b>twist_mux</b><br/>nav2 / joystick / e-stop"]
+    D --> E["<b>/cmd_vel_out</b>"]
+    E --> F["<b>ESP32-S3 · micro-ROS</b>"]
+    F --> G["<b>Vehicle-specific motor interface</b>"]
+    W["<b>Web Mission Console</b><br/>FastAPI · WebSocket · Leaflet"] <--> C
